@@ -1,0 +1,8 @@
+{
+  "name": "cadence",
+  "description": "Opinionated, gated workflow for solo development with Claude: refine, spec, plan, work, and review tickets on a file-based board with a persistent, Obsidian-linked knowledge brain.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dan Christian Febra"
+  }
+}
