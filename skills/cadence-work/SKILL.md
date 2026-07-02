@@ -1,8 +1,8 @@
 ---
 name: cadence-work
-description: Drives implementation of one ticket in the active sprint. Mandates TDD, defers to frontend-design for UI-facing tickets, and checks the brain before writing new code.
+description: Drives implementation of one ticket in the active sprint. Mandates TDD, defers to frontend-design for UI-facing tickets, and checks the brain before writing new code. Only invoke when dispatched by the /cadence:work command or cadence-conversate routing.
 argument-hint: "[id]"
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Work

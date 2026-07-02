@@ -2,6 +2,7 @@
 name: cadence-conversate
 description: Casual entry point for cadence. Classifies what the user wants from their message and the current board state, then directly invokes the matching skill -- brainstorm for a fresh idea, refine/spec/sprint-plan/work/review for an existing item at the right gate, systematic-debugger for a bug report, code-reviewer for a review request. Use when the user asks about cadence work in natural language rather than a specific /cadence command.
 argument-hint: "[what you want]"
+user-invocable: false
 ---
 
 # Conversate

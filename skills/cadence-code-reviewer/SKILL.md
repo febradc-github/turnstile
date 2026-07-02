@@ -1,8 +1,8 @@
 ---
 name: cadence-code-reviewer
-description: General, advisory, non-gated review of code or a diff for correctness bugs and reuse/simplification opportunities. Never commits and never touches ticket status -- distinct from the /cadence:review ticket-closing gate. Reviews inline in the current session, no independent agent dispatch.
+description: General, advisory, non-gated review of code or a diff for correctness bugs and reuse/simplification opportunities. Never commits and never touches ticket status -- distinct from the /cadence:review ticket-closing gate. Only invoke when dispatched by the /cadence:code-reviewer command or cadence-conversate routing.
 argument-hint: "[optional: files or scope to review]"
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Code Reviewer

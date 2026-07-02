@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 — 2026-07-02
+
+- Skills no longer appear in the `/` menu: every `skills/cadence-*` file now
+  sets `user-invocable: false`, making the `commands/*` wrappers the only
+  user-facing entry points (previously each capability showed up twice).
+- Gated skills swap `disable-model-invocation: true` for a description guard
+  ("only invoke when dispatched by the command or conversate routing") --
+  the flag would have blocked the command wrappers' own Skill-tool dispatch
+  once the skills were hidden. The skills' internal approval gates remain
+  the enforcement mechanism, unchanged.
+
 ## 0.2.0 — 2026-07-02
 
 - Added `hooks/guard.js` (PreToolUse on Bash and PowerShell): mechanically

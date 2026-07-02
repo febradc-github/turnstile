@@ -22,6 +22,10 @@ actual behavior, internally named `cadence-<name>` so it's never ambiguous
 with a same-named skill from a different plugin). The command is a thin
 wrapper that dispatches to the skill.
 
+Every skill sets `user-invocable: false`, so the commands are the only
+entries in the `/` menu -- skills never appear there and are reachable only
+through their command wrapper or conversate's routing (via the Skill tool).
+
 ## Commands
 
 | Command | Purpose |

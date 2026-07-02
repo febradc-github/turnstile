@@ -1,8 +1,8 @@
 ---
 name: cadence-brainstorm
-description: Loose, exploratory dialogue for a not-yet-scoped idea -- purpose, rough shape, and alternatives, with no file writes. Hands off to /cadence:refine once the idea is concrete enough to formalize into a ticket. The pre-refine stage of the cadence workflow.
+description: Loose, exploratory dialogue for a not-yet-scoped idea -- purpose, rough shape, and alternatives, with no file writes. Hands off to /cadence:refine once the idea is concrete enough to formalize into a ticket. Only invoke when dispatched by the /cadence:brainstorm command or cadence-conversate routing.
 argument-hint: "[rough idea]"
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Brainstorm

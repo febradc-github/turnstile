@@ -1,7 +1,7 @@
 ---
 name: cadence-sprint-plan
-description: Starts a new sprint. Requires a sprint goal, rolls over unfinished items from the prior sprint, and pulls ready backlog items in. The sprint-entry gate of the cadence workflow.
-disable-model-invocation: true
+description: Starts a new sprint. Requires a sprint goal, rolls over unfinished items from the prior sprint, and pulls ready backlog items in. The sprint-entry gate of the cadence workflow. Only invoke when dispatched by the /cadence:sprint-plan command or cadence-conversate routing.
+user-invocable: false
 ---
 
 # Sprint Plan

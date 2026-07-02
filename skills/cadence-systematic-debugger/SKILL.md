@@ -1,8 +1,8 @@
 ---
 name: cadence-systematic-debugger
-description: Independent debugging methodology -- reproduce, gather evidence, form and test a hypothesis, find the root cause, fix, verify. Not tied to the ticket system; works ad hoc on any bug report and logs a brain note when the root cause is a non-obvious gotcha.
+description: Independent debugging methodology -- reproduce, gather evidence, form and test a hypothesis, find the root cause, fix, verify. Not tied to the ticket system; works ad hoc on any bug report and logs a brain note when the root cause is a non-obvious gotcha. Only invoke when dispatched by the /cadence:systematic-debugger command or cadence-conversate routing.
 argument-hint: "[bug description]"
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Systematic Debugger
