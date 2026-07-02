@@ -1,5 +1,5 @@
 ---
-name: board
+name: cadence-board
 description: Read-only render of the current backlog and active sprint state. Use to see the whole board at a glance.
 ---
 

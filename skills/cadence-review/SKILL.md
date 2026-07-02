@@ -1,5 +1,5 @@
 ---
-name: review
+name: cadence-review
 description: Dispatches the independent cadence-reviewer agent to verify a ticket is actually done. On pass, commits the change. Gate 2 of the cadence workflow -- the implementer never self-certifies.
 argument-hint: "[id]"
 disable-model-invocation: true
