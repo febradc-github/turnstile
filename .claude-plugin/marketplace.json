@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "cadence",
-      "description": "Opinionated, gated workflow for solo development with Claude: refine, spec, sprint-plan, work, and review tickets on a file-based board with a persistent, Obsidian-linked knowledge brain.",
+      "description": "Opinionated, gated workflow for solo development with Claude: conversate, brainstorm, refine, spec, sprint-plan, work, and review tickets on a file-based board, plus independent debugging and code review, with a persistent, Obsidian-linked knowledge brain.",
       "version": "0.1.0",
       "source": "./",
       "author": {
