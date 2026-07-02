@@ -42,6 +42,7 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/cadence:systematic-debugger [bug]` | Independent root-cause debugging. Ad hoc, not gated. |
 | `/cadence:code-reviewer [scope]` | Advisory code/diff review. Ad hoc, not gated, never commits. |
 | `/cadence:install-obsidian` | One-time setup: installs Obsidian via the OS package manager (with confirmation) and scaffolds `cadence/.obsidian/` as a working vault. Idempotent. |
+| `/cadence:obsidian-graph` | Opens `cadence/` in Obsidian and points you at Graph View (Ctrl+G / Cmd+G). |
 
 ## Agents
 
@@ -97,6 +98,19 @@ with a `cadence/` directory, except the commit guard, which is safe anywhere):
 Run the hook tests with:
 
     node --test hooks/remind.test.js hooks/guard.test.js hooks/validate-board.test.js
+
+## Brain MCP server
+
+The plugin ships a dependency-free MCP server (`scripts/brain-mcp.js`) exposing
+the brain as structured tools: `search_notes`, `read_note`, `write_note`,
+`list_backlinks`, `get_related`, `list_orphans`, `list_unresolved_links`.
+It reads `<project>/cadence/brain/` per call, so results always reflect the
+files on disk. Registered via `.mcp.json`; agents without a `tools:`
+restriction (like `brain-curator`) can use these automatically.
+
+Run its tests with:
+
+    node --test scripts/brain-mcp.test.js scripts/open-obsidian.test.js
 
 ## Design
 

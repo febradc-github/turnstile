@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.6.0 — 2026-07-03
+
+- Added the `cadence-brain` MCP server (`scripts/brain-mcp.js`), a
+  dependency-free MCP stdio implementation registered via `.mcp.json`. It
+  exposes the brain as structured tools — `search_notes`, `read_note`,
+  `write_note`, `list_backlinks`, `get_related`, `list_orphans`,
+  `list_unresolved_links` — reading `cadence/brain/` fresh on every call so
+  results always reflect the files on disk. Second of the four planned
+  Obsidian sub-projects.
+- Added `/cadence:obsidian-graph`: opens the project's `cadence/` folder in
+  Obsidian via the `obsidian://open` URI and points the user at Graph View
+  with the default hotkey (Ctrl+G / Cmd+G). Obsidian's URI scheme has no
+  direct graph action, and pre-writing `workspace.json` is deliberately
+  avoided (undocumented schema, machine-specific ids), so the hotkey hint is
+  the honest mechanism.
+- `brain-curator` and the cadence-brain rules now prefer the MCP tools over
+  raw file greps when available; `write_note`'s description enforces
+  read-before-overwrite.
+
 ## 0.5.0 — 2026-07-03
 
 - Added `/cadence:install-obsidian`: one-time, user-only setup that detects
