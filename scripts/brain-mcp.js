@@ -100,6 +100,18 @@ function readNote(dir, args) {
   return { name: note.name, content: note.content };
 }
 
+function writeNote(dir, args) {
+  const name = (args && args.name) || '';
+  const content = args && args.content;
+  if (!validName(name)) throw new Error('invalid name: must be a bare note name without path separators');
+  if (typeof content !== 'string' || content.length === 0) throw new Error('content is required');
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(dir, name + '.md');
+  const overwrote = fs.existsSync(filePath);
+  fs.writeFileSync(filePath, content);
+  return { written: name, path: filePath, overwrote };
+}
+
 function listBacklinks(dir, args) {
   const name = (args && args.name) || '';
   if (!validName(name)) throw new Error('name is required (no path separators)');
@@ -168,6 +180,7 @@ module.exports = {
   loadBrain,
   searchNotes,
   readNote,
+  writeNote,
   listBacklinks,
   getRelated,
   listOrphans,

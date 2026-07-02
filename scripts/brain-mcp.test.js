@@ -13,6 +13,7 @@ const {
   loadBrain,
   searchNotes,
   readNote,
+  writeNote,
   listBacklinks,
   getRelated,
   listOrphans,
@@ -112,4 +113,23 @@ test('listOrphans finds notes with no resolved links either way', () => {
 test('listUnresolvedLinks reports targets with no note file', () => {
   const { brain } = makeFixture();
   assert.deepEqual(listUnresolvedLinks(brain, {}).unresolved, [{ target: 'C-12', sources: ['api-auth'] }]);
+});
+
+test('writeNote creates, overwrites, and reports which it did', () => {
+  const { brain } = makeFixture();
+  const created = writeNote(brain, { name: 'new-note', content: '# New\n' });
+  assert.equal(created.overwrote, false);
+  assert.equal(fs.readFileSync(path.join(brain, 'new-note.md'), 'utf8'), '# New\n');
+  const overwritten = writeNote(brain, { name: 'new-note', content: '# Newer\n' });
+  assert.equal(overwritten.overwrote, true);
+  assert.equal(fs.readFileSync(path.join(brain, 'new-note.md'), 'utf8'), '# Newer\n');
+});
+
+test('writeNote creates the brain dir when missing and rejects bad names', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'brain-empty-'));
+  const brain = path.join(root, 'cadence', 'brain');
+  writeNote(brain, { name: 'first', content: 'x' });
+  assert.ok(fs.existsSync(path.join(brain, 'first.md')));
+  assert.throws(() => writeNote(brain, { name: '../evil', content: 'x' }), /name/);
+  assert.throws(() => writeNote(brain, { name: 'ok' }), /content/);
 });
