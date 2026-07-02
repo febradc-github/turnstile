@@ -24,7 +24,7 @@ This is the shared rulebook every other cadence skill assumes. It has no command
 
 ## Core values
 
-1. **Token economy.** Keep skill and prompt text concise. Do not re-read files already in the conversation. Dispatch an agent only when independence or isolation is structurally required -- this is why cadence has exactly two agents (cadence-reviewer, brain-curator) and no more.
+1. **Token economy.** Keep skill and prompt text concise. Do not re-read files already in the conversation. Dispatch an agent only when independence or isolation is structurally required -- this is why cadence has exactly three agents and no more: cadence-reviewer (independent judgment), cadence-coder (context-isolated implementation), brain-curator (cheap isolated note writing).
 2. **Simplicity first.** Smallest viable file and field structure. No speculative abstraction, no unrequested features.
 3. **Anti-hallucination.** Verify any technical or factual claim not directly checkable in the current codebase (web search, cite the source) before asserting it. Below roughly 98% confidence, say so plainly instead of asserting.
 4. **No AI sloppiness.** Every markdown file cadence produces or edits -- skills, design docs, spec docs, brain notes -- uses short declarative sentences, active voice, no filler, no hedge-padding, no restating the obvious, no emoji.

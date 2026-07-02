@@ -42,6 +42,17 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/cadence:systematic-debugger [bug]` | Independent root-cause debugging. Ad hoc, not gated. |
 | `/cadence:code-reviewer [scope]` | Advisory code/diff review. Ad hoc, not gated, never commits. |
 
+## Agents
+
+Three agents exist because each structurally requires isolation from the main
+session; nothing else is agent-shaped.
+
+| Agent | Model | Role |
+|---|---|---|
+| `cadence-coder` | inherit | Language-adaptive implementation of one ticket or confirmed bug fix, test-first, matching the repo's existing conventions. Dispatched by `/cadence:work` (self-contained tickets) and `/cadence:systematic-debugger` (non-trivial fixes). Never commits, never touches `cadence/` data files. |
+| `cadence-reviewer` | opus | Independent done-ness verdict for `/cadence:review`; judges only the criteria and the diff, read-only. |
+| `brain-curator` | haiku | Sole writer of `cadence/brain/` notes; dispatched opportunistically when something worth remembering happens. |
+
 ## Workflow
 
     rough idea --(/cadence:brainstorm)--> shaped idea
