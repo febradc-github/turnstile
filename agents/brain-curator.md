@@ -11,6 +11,8 @@ You will be given a short description of something worth remembering: a decision
 
 Only create or edit files inside cadence/brain/. Never touch code, board files (backlog.yml, sprint-*.yml), designs, or specs.
 
+If the cadence-brain MCP tools are available (search_notes, read_note, write_note, list_backlinks, get_related, list_orphans, list_unresolved_links), prefer them over raw file greps and manual edits: search with search_notes, read with read_note, and write whole notes with write_note (read the existing note first — write_note replaces the file). Fall back to direct file access when the tools are absent.
+
 Do this:
 1. Search cadence/brain/*.md by filename, tags, and heading text for anything related to the topic. Keep track of two kinds of matches separately: an exact duplicate of the same topic, and any other notes that are related but distinct.
 2. If an exact duplicate note exists, update it in place -- add to its body, update its related links and updated date. Do not create a duplicate note for the same topic.
