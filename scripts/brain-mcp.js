@@ -173,6 +173,107 @@ function listUnresolvedLinks(dir) {
   return { unresolved: [...byTarget.values()] };
 }
 
+const TOOLS = [
+  {
+    name: 'search_notes',
+    description:
+      'Search cadence/brain/ notes by name, tag, and content (case-insensitive substring). Returns matching notes with up to 5 matching lines each. Use this before starting new work to find prior knowledge.',
+    inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'Substring to search for' } }, required: ['query'] },
+    handler: searchNotes,
+  },
+  {
+    name: 'read_note',
+    description: 'Read the full raw content of one brain note by name (case-insensitive, no .md extension).',
+    inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Note name without extension' } }, required: ['name'] },
+    handler: readNote,
+  },
+  {
+    name: 'write_note',
+    description:
+      'Create or overwrite a brain note. Follow the cadence-brain note format (frontmatter with type/tags/created/updated/related/sources, then a # Title). Read the existing note first when overwriting — this replaces the whole file. Intended for the brain-curator agent.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Note name without extension' },
+        content: { type: 'string', description: 'Full markdown content including frontmatter' },
+      },
+      required: ['name', 'content'],
+    },
+    handler: writeNote,
+  },
+  {
+    name: 'list_backlinks',
+    description: 'List notes that link to the given name via [[wikilinks]]. Works for targets with no note file too (e.g. ticket ids like C-12).',
+    inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Link target' } }, required: ['name'] },
+    handler: listBacklinks,
+  },
+  {
+    name: 'get_related',
+    description: 'Full neighborhood of one note: outgoing links, backlinks, and notes sharing tags.',
+    inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Note name' } }, required: ['name'] },
+    handler: getRelated,
+  },
+  {
+    name: 'list_orphans',
+    description: 'List notes with no resolved outgoing links and no backlinks — candidates for linking into the graph.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: listOrphans,
+  },
+  {
+    name: 'list_unresolved_links',
+    description: 'List every [[link target]] that has no note file, with the notes referencing it — candidates for new notes.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: listUnresolvedLinks,
+  },
+];
+
+const SERVER_INFO = { name: 'cadence-brain', version: '0.6.0' };
+
+function handleMessage(msg, dir) {
+  const hasId = msg.id !== undefined && msg.id !== null;
+  const reply = (result) => ({ jsonrpc: '2.0', id: msg.id, result });
+  if (msg.method === 'initialize') {
+    const requested = (msg.params && msg.params.protocolVersion) || '2025-06-18';
+    return reply({ protocolVersion: requested, capabilities: { tools: {} }, serverInfo: SERVER_INFO });
+  }
+  if (msg.method === 'ping') return reply({});
+  if (msg.method === 'tools/list') {
+    return reply({ tools: TOOLS.map(({ handler, ...tool }) => tool) });
+  }
+  if (msg.method === 'tools/call') {
+    const params = msg.params || {};
+    const tool = TOOLS.find((t) => t.name === params.name);
+    if (!tool) return reply({ content: [{ type: 'text', text: `unknown tool: ${params.name}` }], isError: true });
+    try {
+      const result = tool.handler(dir, params.arguments || {});
+      return reply({ content: [{ type: 'text', text: JSON.stringify(result) }] });
+    } catch (err) {
+      return reply({ content: [{ type: 'text', text: String((err && err.message) || err) }], isError: true });
+    }
+  }
+  if (hasId) return { jsonrpc: '2.0', id: msg.id, error: { code: -32601, message: `method not found: ${msg.method}` } };
+  return null;
+}
+
+function main() {
+  const dir = path.join(process.env.CLAUDE_PROJECT_DIR || process.cwd(), 'cadence', 'brain');
+  const rl = readline.createInterface({ input: process.stdin, terminal: false });
+  rl.on('line', (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    let msg;
+    try {
+      msg = JSON.parse(trimmed);
+    } catch {
+      return; // never crash on bad input
+    }
+    const response = handleMessage(msg, dir);
+    if (response) process.stdout.write(JSON.stringify(response) + '\n');
+  });
+}
+
+if (require.main === module) main();
+
 module.exports = {
   parseLinks,
   parseTags,
@@ -185,4 +286,6 @@ module.exports = {
   getRelated,
   listOrphans,
   listUnresolvedLinks,
+  handleMessage,
+  TOOLS,
 };

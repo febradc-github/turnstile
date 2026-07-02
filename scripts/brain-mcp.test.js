@@ -133,3 +133,66 @@ test('writeNote creates the brain dir when missing and rejects bad names', () =>
   assert.throws(() => writeNote(brain, { name: '../evil', content: 'x' }), /name/);
   assert.throws(() => writeNote(brain, { name: 'ok' }), /content/);
 });
+
+function rpc(id, method, params) {
+  return JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n';
+}
+
+function collectResponses(child, count) {
+  const responses = [];
+  let buffer = '';
+  return {
+    responses,
+    done: new Promise((resolve) => {
+      child.stdout.on('data', (chunk) => {
+        buffer += chunk;
+        let idx;
+        while ((idx = buffer.indexOf('\n')) >= 0) {
+          responses.push(JSON.parse(buffer.slice(0, idx)));
+          buffer = buffer.slice(idx + 1);
+        }
+        if (responses.length >= count) resolve();
+      });
+    }),
+  };
+}
+
+test('mcp server: initialize, tools/list, tools/call over stdio', async () => {
+  const { root } = makeFixture();
+  const child = spawn('node', [SCRIPT_PATH], { cwd: root, env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
+  const { responses, done } = collectResponses(child, 3);
+  child.stdin.write(rpc(1, 'initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 't', version: '0' } }));
+  child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
+  child.stdin.write('this is not json\n');
+  child.stdin.write(rpc(2, 'tools/list'));
+  child.stdin.write(rpc(3, 'tools/call', { name: 'search_notes', arguments: { query: 'jwt' } }));
+  await done;
+  child.kill();
+
+  assert.equal(responses[0].id, 1);
+  assert.equal(responses[0].result.protocolVersion, '2025-06-18');
+  assert.equal(responses[0].result.serverInfo.name, 'cadence-brain');
+  assert.deepEqual(responses[0].result.capabilities, { tools: {} });
+
+  assert.equal(responses[1].id, 2);
+  const toolNames = responses[1].result.tools.map((t) => t.name).sort();
+  assert.deepEqual(toolNames, ['get_related', 'list_backlinks', 'list_orphans', 'list_unresolved_links', 'read_note', 'search_notes', 'write_note']);
+  assert.ok(responses[1].result.tools.every((t) => t.description && t.inputSchema));
+
+  assert.equal(responses[2].id, 3);
+  assert.equal(responses[2].result.isError, undefined);
+  const payload = JSON.parse(responses[2].result.content[0].text);
+  assert.deepEqual(payload.results.map((r) => r.name).sort(), ['api-auth', 'jwt-tokens']);
+});
+
+test('mcp server: unknown tool is a tool error, unknown method a -32601', async () => {
+  const { root } = makeFixture();
+  const child = spawn('node', [SCRIPT_PATH], { cwd: root, env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
+  const { responses, done } = collectResponses(child, 2);
+  child.stdin.write(rpc(1, 'tools/call', { name: 'nope', arguments: {} }));
+  child.stdin.write(rpc(2, 'no/such/method'));
+  await done;
+  child.kill();
+  assert.equal(responses[0].result.isError, true);
+  assert.equal(responses[1].error.code, -32601);
+});
