@@ -59,7 +59,8 @@ Open `cadence/` in Obsidian to browse the brain notes as a linked graph.
 
 ## Design
 
-See `docs/superpowers/specs/2026-07-01-cadence-plugin-design.md` for the
-original design rationale, and
+See `docs/superpowers/specs/2026-07-01-cadence-plugin-design.md` and
 `docs/superpowers/specs/2026-07-02-cadence-commands-conversate-design.md`
-for the commands layer, conversate, and the debugger/code-reviewer skills.
+in the originating repository for the full design rationale -- the first
+covers the original plugin, the second covers the commands layer,
+conversate, and the debugger/code-reviewer skills.
