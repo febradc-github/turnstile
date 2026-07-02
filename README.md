@@ -41,6 +41,7 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/cadence:board` | Read-only render of the whole board. |
 | `/cadence:systematic-debugger [bug]` | Independent root-cause debugging. Ad hoc, not gated. |
 | `/cadence:code-reviewer [scope]` | Advisory code/diff review. Ad hoc, not gated, never commits. |
+| `/cadence:install-obsidian` | One-time setup: installs Obsidian via the OS package manager (with confirmation) and scaffolds `cadence/.obsidian/` as a working vault. Idempotent. |
 
 ## Agents
 
@@ -75,7 +76,9 @@ Cadence reads and writes a `cadence/` folder in your project repo:
       specs/<id>.md
       brain/*.md
 
-Open `cadence/` in Obsidian to browse the brain notes as a linked graph.
+Run `/cadence:install-obsidian` once to install Obsidian (if needed) and
+configure `cadence/` as a vault, then open that folder in Obsidian to browse
+the brain notes as a linked graph.
 
 Board files may be hand-edited; the validation hook (below) checks every
 write, and the skills surface parse errors instead of auto-repairing.

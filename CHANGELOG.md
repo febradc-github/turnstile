@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — 2026-07-03
+
+- Added `/cadence:install-obsidian`: one-time, user-only setup that detects
+  whether Obsidian is installed (fixed per-OS install locations, so manual
+  installs are recognized), offers to install it via winget / brew cask /
+  snap / flatpak after showing the exact command and getting confirmation,
+  and scaffolds `cadence/.obsidian/` with config captured verbatim from a
+  real Obsidian-generated vault (core plugins for graph view, backlinks,
+  tags, and search). Scaffolding is skip-if-exists — it never overwrites a
+  live vault config, so re-running the command is always safe. First of the
+  four planned Obsidian sub-projects (setup, MCP server, richer notes,
+  two-way sync).
+- New `scripts/` directory for command-owned Node scripts (previously only
+  hooks had scripts); `node --test scripts/install-obsidian.test.js` covers
+  platform detection, package-manager resolution, install dispatch, and the
+  scaffold guard.
+
 ## 0.4.0 — 2026-07-02
 
 - Added the `cadence-coder` agent (`model: inherit`): language-adaptive
