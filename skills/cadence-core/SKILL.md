@@ -1,6 +1,6 @@
 ---
-name: core
-description: Cadence's non-negotiable workflow rules -- gate order, TDD, brain-check-first, commit conventions, and core values. Auto-loads whenever a cadence skill (refine, spec, sprint-plan, work, review, standup, board, go) is active.
+name: cadence-core
+description: Cadence's non-negotiable workflow rules -- gate order, TDD, brain-check-first, commit conventions, and core values. Auto-loads whenever a cadence skill (refine, spec, sprint-plan, work, review, standup, board, conversate, brainstorm, systematic-debugger, code-reviewer) is active.
 user-invocable: false
 ---
 
@@ -11,7 +11,7 @@ user-invocable: false
 - Never let the implementer self-certify "done." Only /cadence:review, via the cadence-reviewer agent, can move an item to done.
 - Only one item in the active sprint may be status: in_progress at a time. /cadence:work refuses to start a second ticket while another is already in_progress -- finish it (move it to review or done) first. This keeps /cadence:review's diff scoped to exactly one ticket's changes.
 - Every skill searches cadence/brain/ for related notes before starting new work, and surfaces what it finds -- including conflicting notes -- before proceeding.
-- Whenever any cadence skill notices something worth remembering (an architectural decision, a gotcha, a recurring blocker), dispatch the brain-curator agent opportunistically with a short description, not only for the estimate-mismatch case in /cadence:review. This applies to refine, sprint-plan, and work too (standup is read-only and never dispatches it; spec is a mechanical translation step with nothing new to surface).
+- Whenever any cadence skill notices something worth remembering (an architectural decision, a gotcha, a recurring blocker), dispatch the brain-curator agent opportunistically with a short description, not only for the estimate-mismatch case in /cadence:review. This applies to refine, sprint-plan, work, systematic-debugger, and code-reviewer too (standup is read-only and never dispatches it; spec is a mechanical translation step with nothing new to surface).
 - /cadence:work follows TDD: write the failing test first, then the minimal code to pass it. Defer to the superpowers:test-driven-development skill if it is installed.
 - Commits made by /cadence:review never include an Anthropic or Claude co-author tag, and never use --no-verify.
 - Malformed YAML in any cadence/*.yml file: surface the parse error and ask the user to fix it by hand. Never guess or auto-repair.

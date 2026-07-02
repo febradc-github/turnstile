@@ -1,6 +1,6 @@
 ---
-name: brain
-description: Cadence's brain note format and the "check the brain first" mandate. Auto-loads whenever a cadence skill is about to start new work (refine, work, sprint-plan, standup) or /cadence:review is about to commit.
+name: cadence-brain
+description: Cadence's brain note format and the "check the brain first" mandate. Auto-loads whenever a cadence skill is about to start new work (refine, work, sprint-plan, standup, brainstorm, systematic-debugger, code-reviewer) or /cadence:review is about to commit.
 user-invocable: false
 ---
 
