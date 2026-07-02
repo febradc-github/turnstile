@@ -11,6 +11,12 @@ const {
   parseTags,
   validName,
   loadBrain,
+  searchNotes,
+  readNote,
+  listBacklinks,
+  getRelated,
+  listOrphans,
+  listUnresolvedLinks,
 } = require('./brain-mcp.js');
 
 function makeFixture() {
@@ -59,4 +65,51 @@ test('loadBrain returns null for a missing dir and parses notes otherwise', () =
   const auth = notes.find((n) => n.name === 'api-auth');
   assert.deepEqual(auth.links, ['jwt-tokens', 'C-12']);
   assert.deepEqual(auth.tags, ['api', 'auth']);
+});
+
+test('searchNotes matches names, tags, and content lines', () => {
+  const { brain } = makeFixture();
+  const byContent = searchNotes(brain, { query: 'everywhere' });
+  assert.deepEqual(byContent.results.map((r) => r.name), ['api-auth']);
+  assert.equal(byContent.results[0].matches[0].text, 'Uses [[jwt-tokens]] everywhere. Built for [[C-12]].');
+  const byTag = searchNotes(brain, { query: 'estimation' });
+  assert.deepEqual(byTag.results.map((r) => r.name), ['loose-note']);
+  assert.deepEqual(searchNotes(brain, { query: 'zzz-nothing' }).results, []);
+});
+
+test('searchNotes on a missing brain returns empty with a note', () => {
+  const result = searchNotes(path.join(os.tmpdir(), 'nope-' + Date.now()), { query: 'x' });
+  assert.deepEqual(result.results, []);
+  assert.match(result.note, /no cadence\/brain/);
+});
+
+test('readNote returns content case-insensitively and errors with candidates', () => {
+  const { brain } = makeFixture();
+  assert.match(readNote(brain, { name: 'API-Auth' }).content, /# API auth/);
+  assert.throws(() => readNote(brain, { name: 'api' }), /api-auth/);
+});
+
+test('listBacklinks finds linking notes, including for nonexistent targets', () => {
+  const { brain } = makeFixture();
+  assert.deepEqual(listBacklinks(brain, { name: 'jwt-tokens' }).backlinks, ['api-auth']);
+  assert.deepEqual(listBacklinks(brain, { name: 'C-12' }).backlinks, ['api-auth']);
+  assert.deepEqual(listBacklinks(brain, { name: 'loose-note' }).backlinks, []);
+});
+
+test('getRelated returns outgoing, backlinks, and shared tags', () => {
+  const { brain } = makeFixture();
+  const related = getRelated(brain, { name: 'api-auth' });
+  assert.deepEqual(related.outgoing, ['jwt-tokens', 'C-12']);
+  assert.deepEqual(related.backlinks, ['jwt-tokens']);
+  assert.deepEqual(related.sharedTags, [{ tag: 'api', notes: ['jwt-tokens'] }]);
+});
+
+test('listOrphans finds notes with no resolved links either way', () => {
+  const { brain } = makeFixture();
+  assert.deepEqual(listOrphans(brain, {}).orphans, ['loose-note']);
+});
+
+test('listUnresolvedLinks reports targets with no note file', () => {
+  const { brain } = makeFixture();
+  assert.deepEqual(listUnresolvedLinks(brain, {}).unresolved, [{ target: 'C-12', sources: ['api-auth'] }]);
 });
