@@ -9,6 +9,8 @@ const {
   detectInstall,
   detect,
   install,
+  scaffold,
+  VAULT_FILES,
 } = require('./install-obsidian.js');
 
 function makeDeps(overrides = {}) {
@@ -183,4 +185,41 @@ test('install refuses when no package manager is available', () => {
   assert.equal(result.success, false);
   assert.match(result.message, /obsidian\.md\/download/);
   assert.ok(!calls.run.includes('winget install Obsidian.Obsidian'));
+});
+
+test('scaffold refuses when cadence/ does not exist', () => {
+  const { deps, calls } = makeDeps({ cwd: '/proj' });
+  assert.deepEqual(scaffold(deps), { scaffolded: false, reason: 'no-cadence-dir' });
+  assert.equal(calls.run.length, 0);
+});
+
+test('scaffold is a no-op when cadence/.obsidian already exists', () => {
+  const writes = [];
+  const { deps } = makeDeps({
+    cwd: '/proj',
+    existing: [path.join('/proj', 'cadence'), path.join('/proj', 'cadence', '.obsidian')],
+  });
+  deps.writeFile = (p) => writes.push(p);
+  assert.deepEqual(scaffold(deps), { scaffolded: false, reason: 'already-exists' });
+  assert.equal(writes.length, 0);
+});
+
+test('scaffold writes the three captured vault files on first run', () => {
+  const writes = {};
+  const mkdirs = [];
+  const { deps } = makeDeps({ cwd: '/proj', existing: [path.join('/proj', 'cadence')] });
+  deps.mkdir = (p) => mkdirs.push(p);
+  deps.writeFile = (p, c) => { writes[path.basename(p)] = c; };
+  assert.deepEqual(scaffold(deps), { scaffolded: true, reason: 'created' });
+  assert.deepEqual(mkdirs, [path.join('/proj', 'cadence', '.obsidian')]);
+  assert.deepEqual(Object.keys(writes).sort(), ['app.json', 'appearance.json', 'core-plugins.json']);
+  assert.deepEqual(JSON.parse(writes['app.json']), {});
+  assert.deepEqual(JSON.parse(writes['appearance.json']), {});
+  const corePlugins = JSON.parse(writes['core-plugins.json']);
+  assert.equal(corePlugins.graph, true);
+  assert.equal(corePlugins.backlink, true);
+  assert.equal(corePlugins['tag-pane'], true);
+  assert.equal(corePlugins['global-search'], true);
+  assert.equal(corePlugins['file-explorer'], true);
+  assert.deepEqual(corePlugins, VAULT_FILES['core-plugins.json']);
 });
