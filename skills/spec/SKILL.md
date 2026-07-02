@@ -42,7 +42,7 @@ Converts the rationale in `cadence/designs/<id>.md` into a checklist of concrete
    - `status: ready`
    - `acceptance_criteria` set to match the checklist items verbatim (as plain strings, without the `[ ]` markers)
    - `updated` set to today's date
-8. Tell the user the item is `ready` and can be pulled into a sprint with `/cadence:plan`.
+8. Tell the user the item is `ready` and can be pulled into a sprint with `/cadence:sprint-plan`.
 
 ## Inputs
 

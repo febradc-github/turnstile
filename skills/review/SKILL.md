@@ -20,7 +20,7 @@ The done-ness gate. An implementer judging their own work is unreliable, so this
 
 ## Process
 
-1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file (the `cadence/sprint-*.yml` with `sprint.status: active`). If not found, or its `status` isn't `in_progress`, refuse and tell the user what to do instead (e.g. run `/cadence:work <id>` first, or `/cadence:plan` if no active sprint exists).
+1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file (the `cadence/sprint-*.yml` with `sprint.status: active`). If not found, or its `status` isn't `in_progress`, refuse and tell the user what to do instead (e.g. run `/cadence:work <id>` first, or `/cadence:sprint-plan` if no active sprint exists).
 2. Set the item's `status` to `review`.
 3. Read `cadence/specs/<id>.md` for its acceptance criteria.
 4. Get the diff of what changed for this ticket (`git diff` / `git status` against the last commit). Since `/cadence:work` enforces only one `in_progress` item at a time, this diff should represent exactly this ticket's changes; if `git status` shows unrelated uncommitted changes anyway, stop and ask the user before proceeding rather than folding them into this ticket's review or commit.
@@ -45,6 +45,6 @@ The active sprint file (item's `status` and `notes` updated), one git commit on 
 
 ## Error handling
 
-- **No active sprint, or id not in it:** tell the user; suggest `/cadence:plan` or `/cadence:work <id>` as appropriate.
+- **No active sprint, or id not in it:** tell the user; suggest `/cadence:sprint-plan` or `/cadence:work <id>` as appropriate.
 - **Item not in_progress (e.g. still todo):** refuse; tell the user to run `/cadence:work <id>` first.
 - **cadence-reviewer reports FAIL:** item stays in_progress; reasons appended to notes; nothing committed.

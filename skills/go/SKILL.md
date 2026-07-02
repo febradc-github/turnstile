@@ -22,12 +22,12 @@ Lets the user talk about cadence work casually instead of memorizing command nam
    - **Describing a brand-new idea not present in the backlog or any sprint:** tell them: "This looks like a new idea. Run `/cadence:refine <description>` to start it." Do not run refine yourself.
    - **Referencing an existing item by id or title, wanting to move it forward:**
      - `status: idea` -> tell them to run `/cadence:spec <id>`. (A backlog item only ever reaches `status: idea` after `/cadence:refine` has already written and gotten approval for its design doc, so a design doc always exists at this point -- never route back to `/cadence:refine`, which mints a brand-new id from a description and cannot resume an existing item.)
-     - `status: ready` and not in any sprint file -> tell them to run `/cadence:plan`.
+     - `status: ready` and not in any sprint file -> tell them to run `/cadence:sprint-plan`.
      - In the active sprint with `status: in_progress` and the user says the work is finished -> tell them to run `/cadence:review <id>`. Check this condition before the next one.
      - In the active sprint with `status: todo` or `status: in_progress` (and the user isn't saying it's finished) -> tell them to run `/cadence:work <id>`.
      - In the active sprint with `status: review` -> tell them a review is already in progress for that item; ask if they want to check on it.
      - In the active sprint with `status: done` -> tell them it's already shipped.
-   - **Talking about starting a new sprint:** tell them to run `/cadence:plan`.
+   - **Talking about starting a new sprint:** tell them to run `/cadence:sprint-plan`.
    - **Anything ambiguous:** ask one clarifying question rather than guessing which command they mean.
 
 ## Inputs

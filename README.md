@@ -16,7 +16,7 @@ that survives across sessions.
 | `/cadence:go [request]` | Casual entry point; tells you which command to run next. |
 | `/cadence:refine [idea]` | Gap-closing dialogue; writes a design doc for approval. |
 | `/cadence:spec [id]` | Turns an approved design into a checkable spec; requires approval. |
-| `/cadence:plan` | Starts a new sprint; requires a goal; rolls over unfinished work. |
+| `/cadence:sprint-plan` | Starts a new sprint; requires a goal; rolls over unfinished work. |
 | `/cadence:standup` | Read-only progress/blocker report on the active sprint. |
 | `/cadence:work [id]` | Implements one ticket with TDD. |
 | `/cadence:review [id]` | Independent done-ness check; commits on pass. |
@@ -26,7 +26,7 @@ that survives across sessions.
 
     idea --(/cadence:refine)--> design approved
          --(/cadence:spec)----> spec approved --> ready
-         --(/cadence:plan)----> todo --> in_progress
+         --(/cadence:sprint-plan)----> todo --> in_progress
          --(/cadence:review, passes)--> done
 
 ## Data

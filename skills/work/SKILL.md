@@ -21,7 +21,7 @@ Implements one ticket end to end for a single work session, logging what happene
 
 ## Process
 
-1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file. If no active sprint exists, or the id isn't in it, tell the user and suggest `/cadence:plan`.
+1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file. If no active sprint exists, or the id isn't in it, tell the user and suggest `/cadence:sprint-plan`.
 2. If the item's `assignee` is `human`, refuse: tell the user this ticket is tracked as human-owned and point them at it instead of implementing it.
 3. If the item's `status` isn't `todo` or `in_progress` (e.g. it's still `idea`/`ready` and was never planned into this sprint, or it's mid-`review`), refuse and redirect to the correct earlier step.
 4. If any *other* item in the active sprint already has `status: in_progress`, refuse: tell the user to finish that item first (move it to `review` or `done` via `/cadence:review`) before starting this one. Only one item may be `in_progress` at a time.
@@ -44,7 +44,7 @@ Implementation code and tests in the repo, the active sprint file (item's `statu
 
 ## Error handling
 
-- **No active sprint:** tell the user, suggest `/cadence:plan`.
+- **No active sprint:** tell the user, suggest `/cadence:sprint-plan`.
 - **assignee: human:** refuse; point the user at the item instead of implementing it.
 - **Item never went through refine/spec/plan:** refuse; redirect to the missing earlier step.
 - **Another item is already in_progress:** refuse; tell the user to finish that one first.
