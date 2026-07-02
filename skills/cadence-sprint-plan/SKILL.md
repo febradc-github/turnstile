@@ -4,7 +4,7 @@ description: Starts a new sprint. Requires a sprint goal, rolls over unfinished 
 disable-model-invocation: true
 ---
 
-# Plan
+# Sprint Plan
 
 <important>
 - Do not create the new sprint file until the user has given an explicit sprint goal. No goal, no sprint.
