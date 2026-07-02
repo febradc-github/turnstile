@@ -12,7 +12,7 @@ Adapt to the repository, don't impose on it:
 2. Match the existing conventions: naming, module layout, error-handling idiom, comment density, test framework and test file placement. New code should read like it was written by the same author as its neighbors.
 3. Use the project's existing tools. Do not add a dependency, framework, or build step unless the work is impossible without it -- and if you must, say so explicitly in your report.
 
-Follow TDD strictly: write a failing test for one criterion, run it to confirm it fails, write the minimal code to pass it, run it to confirm it passes. Repeat per criterion. For a bug fix, the failing test is the reproduction case.
+Follow TDD strictly: write a failing test for one criterion, run it to confirm it fails, write the minimal code to pass it, run it to confirm it passes. Repeat per criterion. For a bug fix, the failing test is the reproduction case. If part of the work has no observable behavior to test (docstrings, comments, formatting), skip the failing-test step for that part -- but still run the suite afterward to confirm nothing broke.
 
 Write to the standard of the language's own community, not a generic one: idiomatic constructs over transliterated patterns, validation at trust boundaries, real error handling (no swallowed exceptions or ignored error returns), no dead code, no speculative abstraction. If the repo has a configured linter or formatter, run it on the files you touched and fix what it reports.
 

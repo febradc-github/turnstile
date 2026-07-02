@@ -10,6 +10,7 @@ user-invocable: false
 <important>
 - Never guess a fix before forming and testing a hypothesis about the root cause. A fix that isn't traced to a cause is a coincidence, not a fix.
 - Search cadence/brain/ for related notes before investigating -- the same root cause may already be documented.
+- Never write the fix yourself. Fixes of any size are dispatched to the cadence-coder agent; the only inline edits are temporary diagnostic instrumentation, reverted before finishing.
 - If an active sprint item is `in_progress`, append a short note about the bug and fix to its `notes` field; otherwise this skill works entirely outside the ticket system.
 </important>
 
@@ -24,7 +25,7 @@ Finds and fixes the actual root cause of a bug ($ARGUMENTS), rather than patchin
 3. Gather evidence: read the relevant code paths, recent changes (`git log`/`git diff` if relevant), and any error output in full.
 4. Form one specific, falsifiable hypothesis about the root cause.
 5. Test the hypothesis with the cheapest check available (e.g. a targeted print/log, a minimal reproduction, reading the exact line in question) before writing any fix. If the hypothesis is wrong, form a new one and repeat -- do not move to a fix on an untested hypothesis.
-6. Once the root cause is confirmed, write the minimal fix that addresses that cause (not just the observed symptom). If the fix is more than a few lines, dispatch the `cadence-coder` agent with the confirmed root cause, the reproduction steps, and the intended fix approach; for a trivial fix, apply it inline.
+6. Once the root cause is confirmed, dispatch the `cadence-coder` agent with the confirmed root cause, the reproduction steps, and the intended minimal fix approach (address the cause, not just the observed symptom). Dispatch regardless of the fix's size -- this skill never writes the fix itself, even a one-liner. The only inline edits allowed are temporary diagnostic instrumentation from step 5, which must be reverted.
 7. Verify the fix resolves the original reproduction case, and check for regressions in related behavior.
 8. If the active sprint has an item with `status: in_progress`, append a short entry to its `notes`: `debug: <one-line summary of root cause and fix>`.
 9. If the root cause was non-obvious (would likely trip someone up again), dispatch the `brain-curator` agent with a short description of it.
