@@ -49,7 +49,7 @@ through their command wrapper or conversate's routing (via the Skill tool).
 
 ## Agents
 
-Three agents exist because each structurally requires isolation from the main
+Four agents exist because each structurally requires isolation from the main
 session; nothing else is agent-shaped.
 
 | Agent | Model | Role |
@@ -57,6 +57,7 @@ session; nothing else is agent-shaped.
 | `cadence-coder` | inherit | Language-adaptive implementation of one ticket or confirmed bug fix, test-first, matching the repo's existing conventions. Dispatched by `/cadence:work` (self-contained tickets) and `/cadence:systematic-debugger` (non-trivial fixes). Never commits, never touches `cadence/` data files. |
 | `cadence-reviewer` | opus | Independent done-ness verdict for `/cadence:review`; judges only the criteria and the diff, read-only. |
 | `brain-curator` | haiku | Sole writer of the knowledge folders (`cadence/brain/`, `cadence/decisions/`, `cadence/architecture/`); dispatched opportunistically when something worth remembering happens. |
+| `pitch-agent` | inherit | Anchoring-free idea pitches for `/cadence:brainstorm`'s panel: dispatched 2-3× in parallel with forced stances (minimalist, skeptic, scout) on epic-scale ideas or on request. Sees the idea summary, never the dialogue. Read-only. |
 
 ## Workflow
 

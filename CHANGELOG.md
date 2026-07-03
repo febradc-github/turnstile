@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.13.0 — 2026-07-04
+
+- New `pitch-agent` (fourth cadence agent): anchoring-free idea pitches for
+  `/cadence:brainstorm`. On epic-scale ideas (or on request) brainstorm
+  convenes a panel — three parallel dispatches with forced stances
+  (minimalist: smallest viable version; skeptic: why not, checked against
+  recorded ADRs; scout: prior art from the vault and web) — then synthesizes
+  the pitches into 2-3 distinct directions for the user to pick from.
+  Panelists get the idea summary and vault findings, never the dialogue
+  transcript: an unanchored take is the point, same isolation rationale as
+  cadence-reviewer. The panel is gated (no panel for trivial ideas), pitches
+  are capped at 150 words, convergent pitches are reported honestly rather
+  than dressed up as disagreement, and rejected directions ride the refine
+  handoff into the decision trail.
+
 ## 0.12.0 — 2026-07-03
 
 - Stable sprint board: the current sprint always lives at `cadence/sprint.yml`
