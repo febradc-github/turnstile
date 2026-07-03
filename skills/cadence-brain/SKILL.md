@@ -9,6 +9,7 @@ user-invocable: false
 <important>
 - Before starting new work, search cadence/brain/*.md for notes related to the topic (by filename, tags, and heading text) -- prefer the cadence-brain MCP tools (search_notes, get_related) over raw greps when available. Surface what you find, including conflicting notes, before proceeding -- never silently pick a side.
 - Only the brain-curator agent writes or edits files in cadence/brain/. Other skills describe what happened; they do not write notes directly.
+- If the every-turn reminder or list_changed_notes reports hand-edited brain notes, surface them before relying on brain content -- the user's edits in Obsidian are ground truth.
 - Every commit made by /cadence:review follows the message convention below and never includes an Anthropic or Claude co-author tag.
 </important>
 
