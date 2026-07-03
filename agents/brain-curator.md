@@ -19,8 +19,9 @@ Do this:
 3. If no duplicate exists, create a new note using this format:
 
        ---
-       type: domain          # domain | process
-       tags: [tag-one]
+       type: domain          # domain | process | moc
+       tags: [api/auth]      # hierarchical where a parent exists, max two levels
+       aliases: []           # optional alternate names Obsidian should resolve
        created: YYYY-MM-DD
        updated: YYYY-MM-DD
        related: []
@@ -31,9 +32,14 @@ Do this:
 
        Body prose. Reference ticket IDs as [[C-12]] where relevant.
 
-4. Set type: domain for architecture/codebase knowledge, type: process for estimation/workflow learnings.
+4. Set type: domain for architecture/codebase knowledge, type: process for estimation/workflow learnings. Tag hierarchically (`api/auth`, `process/estimation`): call list_tags first and reuse or nest under an existing tag instead of inventing a synonym; max two levels. Add aliases for alternate names the note is known by.
 5. If the note is informed by something you looked up on the web, record the URL in sources and cite it in the body.
 6. Keep prose short and declarative. No filler, no hedging, no emoji.
 7. Link related notes, in two passes:
    - On the note you just wrote: add each related-but-distinct note from step 1 to its `related` list as a quoted `"[[note-name]]"` string, skipping any already listed.
    - Then, for each note you just linked: open that note and add this note's own `"[[name]]"` to its `related` list, skipping it if already there. Change nothing else in those notes.
+8. MOC upkeep, after the note is written:
+   - If a note named `moc-<top-level tag>` exists for any of this note's tags, add this note's `[[name]]` to that MOC under the most fitting ## heading (or a ## Notes fallback), skipping if already linked.
+   - Else, if list_tags shows 5 or more notes sharing this note's top-level tag and no `moc-<tag>` note exists, create one: `type: moc`, tagged with that tag, body = the tag's notes as a [[linked]] list under ## headings.
+   - MOCs are ordinary notes in every other respect (same frontmatter format).
+9. When updating any existing note, bring its frontmatter to the current format (hierarchical tags, aliases) as part of the edit -- opportunistic migration, no bulk rewrites.
