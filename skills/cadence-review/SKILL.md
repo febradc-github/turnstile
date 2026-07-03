@@ -31,8 +31,9 @@ The done-ness gate. An implementer judging their own work is unreliable, so this
    - Tell the user what needs to change. Do not commit.
 7. If the agent's verdict is PASS:
    - Set the item's `status` to `done`.
+   - If the item has a `parent`, check every child of that parent (children live across `cadence/backlog.yml` and all `cadence/sprint-*.yml` files; match on `parent: <parent-id>`). If all are now `done`, set the parent's `status` to `done` in `cadence/backlog.yml` and tell the user the epic/story is complete. Cascade: if that parent has a `parent` of its own, repeat the check one level up. This rollup is the one exception to "only the reviewer marks done" -- each child was individually reviewer-certified, so the parent's done-ness is derived, not judged.
    - Compare `points` against the coarse actual-effort signals already on hand: `carryovers` and the number of "work pass" entries logged in `notes` (from `/cadence:work`). If `carryovers > 0` or there are 3+ work passes against a `points` estimate of 3 or less (or an equivalent clear mismatch), dispatch the `brain-curator` agent with that observation as a candidate process learning. Do not claim wall-clock timing -- only these coarse counts.
-   - Stage the changed files together with the updated active sprint file (so the `done` status and `notes` update land in the same commit as the implementation, not as a separate uncommitted change) and commit: `git commit -m "<verb>: <title> (<id>)"` following the brain skill's commit message convention (no Anthropic/Claude co-author tag, no `--no-verify`).
+   - Stage the changed files together with the updated active sprint file (so the `done` status and `notes` update land in the same commit as the implementation, not as a separate uncommitted change), plus `cadence/backlog.yml` when a parent rollup updated it, and commit: `git commit -m "<verb>: <title> (<id>)"` following the brain skill's commit message convention (no Anthropic/Claude co-author tag, no `--no-verify`).
    - Tell the user the ticket is done and committed.
 
 ## Inputs
@@ -41,7 +42,7 @@ The active `cadence/sprint-*.yml`, `cadence/specs/<id>.md`, `git diff`/`git stat
 
 ## Outputs
 
-The active sprint file (item's `status` and `notes` updated), one git commit on PASS, a `brain-curator` dispatch on a meaningful estimate mismatch.
+The active sprint file (item's `status` and `notes` updated), `cadence/backlog.yml` on a parent rollup (epic/story flipped to `done` when its last child passes), one git commit on PASS, a `brain-curator` dispatch on a meaningful estimate mismatch.
 
 ## Error handling
 

@@ -124,6 +124,144 @@ test('rejects a malformed ticket id', () => {
   assert.match(result.stderr, /does not match C-<number>/);
 });
 
+const HIERARCHY_BACKLOG = `items:
+  - id: C-1
+    title: "Epic"
+    type: epic
+    status: idea
+  - id: C-2
+    title: "Story"
+    type: story
+    parent: C-1
+    status: ready
+`;
+
+test('passes a valid epic -> story hierarchy in the backlog', () => {
+  const dir = makeCadenceDir({ 'backlog.yml': HIERARCHY_BACKLOG });
+  assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
+});
+
+test('passes a task in a sprint whose parent story lives in the backlog', () => {
+  // C-2 has a child, so it is a container and must sit at idea, not ready.
+  const backlog = HIERARCHY_BACKLOG.replace('parent: C-1\n    status: ready', 'parent: C-1\n    status: idea');
+  const sprint = `sprint:
+  status: active
+items:
+  - id: C-3
+    title: "Task"
+    type: task
+    parent: C-2
+    status: todo
+`;
+  const dir = makeCadenceDir({ 'backlog.yml': backlog, 'sprint-1.yml': sprint });
+  assert.equal(runValidator(path.join(dir, 'sprint-1.yml')).status, 0);
+});
+
+test('rejects an invalid item type', () => {
+  const dir = makeCadenceDir({
+    'backlog.yml': 'items:\n  - id: C-1\n    type: initiative\n    status: idea\n',
+  });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /invalid type "initiative"/);
+});
+
+test('rejects an epic inside a sprint file', () => {
+  const sprint = GOOD_SPRINT.replace('id: C-3\n    title: "Third"', 'id: C-3\n    title: "Third"\n    type: epic');
+  const dir = makeCadenceDir({ 'sprint-1.yml': sprint });
+  const result = runValidator(path.join(dir, 'sprint-1.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /epics never enter a sprint/);
+});
+
+test('rejects a ready epic', () => {
+  const dir = makeCadenceDir({
+    'backlog.yml': HIERARCHY_BACKLOG.replace('type: epic\n    status: idea', 'type: epic\n    status: ready'),
+  });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /epic C-1 has invalid status "ready"/);
+});
+
+test('allows done for a container epic but not for a childless item', () => {
+  const doneEpic = HIERARCHY_BACKLOG.replace('type: epic\n    status: idea', 'type: epic\n    status: done');
+  const dir = makeCadenceDir({ 'backlog.yml': doneEpic });
+  assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
+
+  const doneLeaf = 'items:\n  - id: C-1\n    status: done\n';
+  const dir2 = makeCadenceDir({ 'backlog.yml': doneLeaf });
+  const result = runValidator(path.join(dir2, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /item C-1 has invalid status "done"/);
+});
+
+test('rejects a container story that is still marked ready', () => {
+  const backlog = `items:
+  - id: C-1
+    title: "Story"
+    status: ready
+  - id: C-2
+    title: "Task"
+    type: task
+    parent: C-1
+    status: idea
+`;
+  const dir = makeCadenceDir({ 'backlog.yml': backlog });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /container \(has children\) C-1 has invalid status "ready"/);
+});
+
+test('rejects a live item whose parent is missing from the backlog', () => {
+  const dir = makeCadenceDir({
+    'backlog.yml': 'items:\n  - id: C-2\n    type: story\n    parent: C-9\n    status: idea\n',
+  });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /parent C-9, which is not in backlog\.yml/);
+});
+
+test('rejects a task whose parent is an epic', () => {
+  const backlog = HIERARCHY_BACKLOG.replace('type: story', 'type: task');
+  const dir = makeCadenceDir({ 'backlog.yml': backlog });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /a task's parent must be a story/);
+});
+
+test('rejects a story whose parent is not an epic', () => {
+  const backlog = `items:
+  - id: C-1
+    title: "Story A"
+    status: idea
+  - id: C-2
+    title: "Story B"
+    type: story
+    parent: C-1
+    status: idea
+`;
+  const dir = makeCadenceDir({ 'backlog.yml': backlog });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /a story's parent must be an epic/);
+});
+
+test('rejects an epic that itself has a parent', () => {
+  const backlog = `items:
+  - id: C-1
+    type: epic
+    status: idea
+  - id: C-2
+    type: epic
+    parent: C-1
+    status: idea
+`;
+  const dir = makeCadenceDir({ 'backlog.yml': backlog });
+  const result = runValidator(path.join(dir, 'backlog.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /epics are top-level/);
+});
+
 test('never blocks on unparseable input', () => {
   const result = spawnSync('node', [VALIDATOR_PATH], { input: 'not json', encoding: 'utf8' });
   assert.equal(result.status, 0);

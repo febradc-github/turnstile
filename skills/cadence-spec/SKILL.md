@@ -9,6 +9,7 @@ user-invocable: false
 
 <important>
 - Refuse to run if cadence/backlog.yml has no item with this id and status: idea, or if cadence/designs/<id>.md does not exist. Tell the user to run /cadence:refine first.
+- Refuse epics and containers (items with type: epic, or items another item names as parent). Only leaf stories and tasks get spec'd; direct the user to /cadence:breakdown and to spec the children instead.
 - Do not flip the item's status to ready until the user has explicitly approved the spec file.
 - Design and spec are always separate files. Never skip writing cadence/specs/<id>.md and just reuse the design doc.
 </important>
@@ -19,7 +20,7 @@ Converts the rationale in `cadence/designs/<id>.md` into a checklist of concrete
 
 ## Process
 
-1. Look up `<id>` (from `$ARGUMENTS`) in `cadence/backlog.yml`. If no item exists with that id and `status: idea`, refuse and tell the user to run `/cadence:refine <idea>` first.
+1. Look up `<id>` (from `$ARGUMENTS`) in `cadence/backlog.yml`. If no item exists with that id and `status: idea`, refuse and tell the user to run `/cadence:refine <idea>` first. If the item has `type: epic`, or any other backlog item names it as `parent`, refuse: containers are never spec'd -- point the user at `/cadence:breakdown <id>` (if it has no children yet) or at spec'ing its children.
 2. Read `cadence/designs/<id>.md`. If it doesn't exist, refuse with the same message.
 3. Search `cadence/brain/*.md` for notes related to `<id>`'s topic (by filename, tags, and heading text). Surface anything relevant, including conflicts, before continuing.
 4. If `cadence/specs/<id>.md` already exists (the item's `status` is still `idea`, so this is not an approved spec -- it can only be a draft left over from an abandoned prior `/cadence:spec` session), warn the user it looks like a leftover draft and ask whether to overwrite it or keep it as-is before continuing. Do not silently overwrite it.
@@ -55,6 +56,7 @@ Converts the rationale in `cadence/designs/<id>.md` into a checklist of concrete
 ## Error handling
 
 - **No matching idea-status item, or missing design doc:** refuse; direct the user to `/cadence:refine <idea>`.
+- **Item is an epic or container:** refuse; direct the user to `/cadence:breakdown <id>` or to its children.
 - **User approves with changes each round:** keep revising and re-presenting until they approve without changes -- don't flip status on a conditional approval.
 - **A spec file already exists at this id:** warn the user it looks like an abandoned draft; ask before overwriting.
 - **Malformed YAML in backlog.yml:** surface the parse error and ask the user to fix it by hand -- never guess or auto-repair.

@@ -25,7 +25,9 @@ Lets the user talk about cadence work casually instead of memorizing command nam
    - **Describing a brand-new idea not present in the backlog or any sprint:** invoke the `cadence-brainstorm` skill with the idea description.
    - **Reporting something broken (an error, a failing test, unexpected behavior):** invoke the `cadence-systematic-debugger` skill with the report.
    - **Asking for a code review or feedback on a diff/change:** invoke the `cadence-code-reviewer` skill.
+   - **Asking to break an item into smaller pieces (or referencing an epic that has no children yet):** invoke `cadence-breakdown` with that id.
    - **Referencing an existing item by id or title, wanting to move it forward:**
+     - `type: epic`, or another item names it as `parent`: containers don't move through gates themselves. If it has no children yet, invoke `cadence-breakdown` with its id; otherwise report its children's statuses and route the user to the child at the earliest gate.
      - `status: idea` -> invoke `cadence-spec` with that id. (A backlog item only ever reaches `status: idea` after `/cadence:refine` has already written and gotten approval for its design doc, so a design doc always exists at this point -- never invoke `cadence-refine`, which mints a brand-new id from a description and cannot resume an existing item.)
      - `status: ready` and not in any sprint file -> invoke `cadence-sprint-plan`.
      - In the active sprint with `status: in_progress` and the user says the work is finished -> invoke `cadence-review` with that id. Check this condition before the next one.

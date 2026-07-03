@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.9.0 — 2026-07-03
+
+- Epic -> user story -> task hierarchy. Items gain optional `type`
+  (`epic`/`story`/`task`; absent means story) and `parent` fields — same
+  `C-<n>` id counter, fully backward compatible with existing boards.
+- New `/cadence:breakdown [id]`: approval-gated decomposition of an epic into
+  stories or an oversized story into tasks (two levels max). Writes a design
+  doc per child referencing the parent's, appends children to the backlog at
+  `status: idea`, and resets a formerly-`ready` parent to `idea` — containers
+  never enter sprints; their leaves do. A skill, not an agent: breakdown is an
+  interactive approval dialogue, which cadence's core values keep in-session.
+- `/cadence:refine` detects epic-sized ideas (multiple independent
+  deliverables, or above 8 points), records them as `type: epic`, and hands
+  off to breakdown — so large backlog entries are split into workable items
+  at creation time.
+- `/cadence:sprint-plan` UX: candidates (ready leaves only, grouped under
+  their epic) come with a recommended selection — budgeted against last
+  sprint's velocity minus carryovers, favoring items that close out an
+  in-flight epic, then epic coherence, then oldest-first — each with a
+  one-line reason. The skill then *proposes* a goal derived from the
+  selection instead of asking cold. Accepting either is one word; the user
+  keeps the final pick and the no-goal-no-sprint gate stands.
+- `/cadence:review` rolls done-ness up: when the last child of a parent
+  passes review, the parent flips to `done` in the backlog (cascading upward)
+  — the one derived exception to "only the reviewer marks done."
+- `/cadence:spec` refuses epics/containers; `/cadence:work` reads the parent
+  chain's design docs for context; `/cadence:board` renders the hierarchy
+  with per-container child progress; conversate routes "break this down" and
+  childless-epic references to breakdown.
+- `validate-board.js` enforces the hierarchy: valid `type` values, epics only
+  in the backlog and never nested, story parents must be epics and task
+  parents stories, `parent` must resolve to a backlog item for live copies,
+  containers only `idea`/`done`, and backlog `done` only for containers.
+
 ## 0.8.1 — 2026-07-03
 
 - Fixed `/cadence:obsidian-graph` failing with Obsidian's "Vault not found"

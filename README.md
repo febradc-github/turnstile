@@ -32,9 +32,10 @@ through their command wrapper or conversate's routing (via the Skill tool).
 |---|---|
 | `/cadence:conversate [message]` | Casual entry point; classifies intent and directly invokes the right skill. |
 | `/cadence:brainstorm [idea]` | Loose, exploratory idea-shaping. No file writes. Hands off to refine. |
-| `/cadence:refine [idea]` | Gap-closing dialogue; writes a design doc for approval. |
+| `/cadence:refine [idea]` | Gap-closing dialogue; writes a design doc for approval. Epic-sized ideas are recorded as epics and handed to breakdown. |
+| `/cadence:breakdown [id]` | Decomposes an epic into user stories, or an oversized story into tasks; requires approval. |
 | `/cadence:spec [id]` | Turns an approved design into a checkable spec; requires approval. |
-| `/cadence:sprint-plan` | Starts a new sprint; requires a goal; rolls over unfinished work. |
+| `/cadence:sprint-plan` | Starts a new sprint; recommends which ready items to pull in and proposes a goal; rolls over unfinished work. |
 | `/cadence:work [id]` | Implements one ticket with TDD. |
 | `/cadence:review [id]` | Independent done-ness check; commits on pass. |
 | `/cadence:standup` | Read-only progress/blocker report on the active sprint. |
@@ -62,6 +63,12 @@ session; nothing else is agent-shaped.
                --(/cadence:spec)--------> spec approved --> ready
                --(/cadence:sprint-plan)-> todo --> in_progress
                --(/cadence:review, passes)--> done
+
+Epic-sized ideas take a detour: `/cadence:refine` records them as `type: epic`
+and `/cadence:breakdown` splits them into user stories (and oversized stories
+into tasks; two levels max). Each child then flows through spec -> ready ->
+sprint on its own. Epics and other parents never enter a sprint; when the last
+child passes review, the parent is marked done automatically.
 
 `/cadence:conversate` classifies a message and drives this pipeline directly
 instead of requiring each command to be typed by hand.
@@ -96,7 +103,7 @@ with a `cadence/` directory, except the commit guard, which is safe anywhere):
 |---|---|---|
 | `remind.js` | UserPromptSubmit | Re-injects the gate rules and conversate routing each turn. |
 | `guard.js` | PreToolUse (Bash) | Blocks `git commit --no-verify` and Anthropic/Claude attribution lines. |
-| `validate-board.js` | PostToolUse (Write/Edit) | Board invariants: valid statuses, `C-<n>` ids, no duplicate ids, one `in_progress` item, one active sprint, one live copy per item. |
+| `validate-board.js` | PostToolUse (Write/Edit) | Board invariants: valid statuses, `C-<n>` ids, no duplicate ids, one `in_progress` item, one active sprint, one live copy per item, hierarchy rules (`type`/`parent` values, epics stay in the backlog, epic -> story -> task nesting only, containers never `ready`). |
 
 Run the hook tests with:
 
