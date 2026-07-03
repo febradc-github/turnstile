@@ -4,15 +4,27 @@ const path = require('node:path');
 const { openObsidian, buildUri } = require('./open-obsidian.js');
 
 function makeDeps(overrides = {}) {
-  const calls = { run: [] };
+  const calls = { run: [], writes: {}, mkdirs: [] };
   const existing = overrides.existing || [];
+  const files = overrides.files || {};
   return {
     calls,
     deps: {
       platform: overrides.platform || 'win32',
       env: overrides.env || {},
       cwd: overrides.cwd || 'D:\\proj',
-      exists: (p) => existing.includes(p),
+      exists: (p) => existing.includes(p) || p in files,
+      readFile: (p) => {
+        if (!(p in files)) throw new Error('ENOENT: ' + p);
+        return files[p];
+      },
+      writeFile: (p, content) => {
+        if (overrides.writeFails) throw new Error('EACCES: read-only');
+        calls.writes[p] = content;
+      },
+      mkdir: (p) => calls.mkdirs.push(p),
+      randomId: () => 'deadbeefdeadbeef',
+      now: () => 1234567890,
       run: (cmd, args) => {
         calls.run.push([cmd, ...args]);
         return overrides.runResult || { status: 0, stdout: '', stderr: '' };
@@ -80,6 +92,98 @@ test('open surfaces opener failure', () => {
   assert.equal(result.opened, false);
   assert.equal(result.reason, 'opener-failed');
   assert.match(result.message, /no handler/);
+});
+
+test('open registers the vault in the global registry before launching', () => {
+  const cadence = path.resolve('D:\\proj', 'cadence');
+  const registry = path.join('C:\\Users\\d\\AppData\\Roaming', 'obsidian', 'obsidian.json');
+  const { deps, calls } = makeDeps({
+    existing: [cadence],
+    env: { APPDATA: 'C:\\Users\\d\\AppData\\Roaming' },
+    files: { [registry]: '{"vaults":{"aaaa":{"path":"C:\\\\other","ts":1,"open":true}}}' },
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.opened, true);
+  assert.equal(result.vaultRegistered, true);
+  assert.equal(result.registration, 'added');
+  const written = JSON.parse(calls.writes[registry]);
+  assert.equal(written.vaults.aaaa.path, 'C:\\other');
+  assert.deepEqual(written.vaults.deadbeefdeadbeef, { path: cadence, ts: 1234567890 });
+});
+
+test('an already-registered vault is not duplicated (case-insensitive on windows)', () => {
+  const cadence = path.resolve('D:\\proj', 'cadence');
+  const registry = path.join('C:\\Users\\d\\AppData\\Roaming', 'obsidian', 'obsidian.json');
+  const { deps, calls } = makeDeps({
+    existing: [cadence],
+    env: { APPDATA: 'C:\\Users\\d\\AppData\\Roaming' },
+    files: { [registry]: JSON.stringify({ vaults: { bbbb: { path: cadence.toUpperCase(), ts: 1 } } }) },
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.vaultRegistered, true);
+  assert.equal(result.registration, 'already-registered');
+  assert.deepEqual(calls.writes, {});
+});
+
+test('open creates the registry when Obsidian has never written one', () => {
+  const cadence = path.resolve('/proj', 'cadence');
+  const registry = path.join('/home/d', '.config', 'obsidian', 'obsidian.json');
+  const { deps, calls } = makeDeps({
+    platform: 'linux',
+    cwd: '/proj',
+    env: { HOME: '/home/d' },
+    existing: [cadence],
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.vaultRegistered, true);
+  assert.equal(calls.mkdirs.length, 1);
+  const written = JSON.parse(calls.writes[registry]);
+  assert.deepEqual(written.vaults.deadbeefdeadbeef, { path: cadence, ts: 1234567890 });
+});
+
+test('open finds the snap registry on linux when it exists', () => {
+  const cadence = path.resolve('/proj', 'cadence');
+  const snapRegistry = path.join('/home/d', 'snap', 'obsidian', 'current', '.config', 'obsidian', 'obsidian.json');
+  const { deps, calls } = makeDeps({
+    platform: 'linux',
+    cwd: '/proj',
+    env: { HOME: '/home/d' },
+    existing: [cadence],
+    files: { [snapRegistry]: '{"vaults":{}}' },
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.vaultRegistered, true);
+  assert.ok(calls.writes[snapRegistry]);
+});
+
+test('registration failure is reported but does not block opening', () => {
+  const cadence = path.resolve('D:\\proj', 'cadence');
+  const registry = path.join('C:\\Users\\d\\AppData\\Roaming', 'obsidian', 'obsidian.json');
+  const { deps } = makeDeps({
+    existing: [cadence],
+    env: { APPDATA: 'C:\\Users\\d\\AppData\\Roaming' },
+    files: { [registry]: '{"vaults":{}}' },
+    writeFails: true,
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.opened, true);
+  assert.equal(result.vaultRegistered, false);
+  assert.equal(result.registration, 'write-failed');
+});
+
+test('a corrupt registry is left alone and reported', () => {
+  const cadence = path.resolve('D:\\proj', 'cadence');
+  const registry = path.join('C:\\Users\\d\\AppData\\Roaming', 'obsidian', 'obsidian.json');
+  const { deps, calls } = makeDeps({
+    existing: [cadence],
+    env: { APPDATA: 'C:\\Users\\d\\AppData\\Roaming' },
+    files: { [registry]: 'not json{' },
+  });
+  const result = openObsidian(deps);
+  assert.equal(result.opened, true);
+  assert.equal(result.vaultRegistered, false);
+  assert.equal(result.registration, 'unreadable-registry');
+  assert.deepEqual(calls.writes, {});
 });
 
 test('CLAUDE_PROJECT_DIR overrides cwd', () => {

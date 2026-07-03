@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.1 — 2026-07-03
+
+- Fixed `/cadence:obsidian-graph` failing with Obsidian's "Vault not found"
+  dialog on first use: `obsidian://open?path=` only resolves paths inside
+  vaults Obsidian already knows, and nothing registered `cadence/` in
+  Obsidian's global vault registry. `open-obsidian.js` now registers the
+  vault (idempotently, best-effort) in `obsidian.json` — found per platform,
+  including snap/flatpak locations on Linux — before launching the URI, and
+  reports `vaultRegistered`/`registration` in its JSON output. If Obsidian
+  was already running when the vault was first registered, it may need a
+  restart to pick it up; the skill now says so.
+
 ## 0.8.0 — 2026-07-03
 
 - Two-way brain awareness (fourth and final Obsidian sub-project): notes

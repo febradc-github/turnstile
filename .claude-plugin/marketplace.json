@@ -9,7 +9,7 @@
     {
       "name": "cadence",
       "description": "Opinionated, gated workflow for solo development with Claude: conversate, brainstorm, refine, spec, sprint-plan, work, and review tickets on a file-based board, plus independent debugging and code review, with a persistent, Obsidian-linked knowledge brain.",
-      "version": "0.8.0",
+      "version": "0.8.1",
       "source": "./",
       "author": {
         "name": "Dan Christian Febra"
