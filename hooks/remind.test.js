@@ -22,6 +22,22 @@ test('remind.js prints the workflow + routing reminder when cadence/ directory e
   assert.equal(output, EXPECTED_MESSAGE);
 });
 
+test('remind.js appends a stray-note line when a root file shadows an alias', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-remind-test-'));
+  const vault = path.join(tmpDir, 'cadence');
+  const epics = path.join(vault, 'epics');
+  fs.mkdirSync(epics, { recursive: true });
+  fs.writeFileSync(
+    path.join(epics, 'C-1-payment-flow.md'),
+    '---\ntype: epic\naliases: ["C-1"]\n---\n\n# C-1: Payment flow\n'
+  );
+  fs.writeFileSync(path.join(vault, 'C-1.md'), '');
+  const output = execFileSync('node', [REMIND_PATH], { encoding: 'utf8', cwd: tmpDir });
+  assert.ok(output.startsWith(EXPECTED_MESSAGE));
+  assert.match(output, /1 stray note\(s\) hijacking wikilinks/);
+  assert.match(output, /C-1\.md \(empty, shadows C-1-payment-flow\)/);
+});
+
 test('remind.js appends a hand-edit line when tracked knowledge notes changed', () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-remind-test-'));
   const vault = path.join(tmpDir, 'cadence');

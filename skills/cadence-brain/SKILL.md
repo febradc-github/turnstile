@@ -11,6 +11,7 @@ user-invocable: false
 - Only the brain-curator agent writes or edits files in cadence/brain/, cadence/decisions/, and cadence/architecture/. Item notes, designs, and specs are written by their gated skills (refine, breakdown, spec). No other writes.
 - Status lives only in the YAML board (backlog.yml, sprint-N.yml). Notes never carry a status field -- a second copy would drift.
 - If the every-turn reminder or list_changed_notes reports hand-edited knowledge notes, surface them before relying on their content -- the user's edits in Obsidian are ground truth.
+- If the every-turn reminder or list_stray_notes reports stray notes (vault-root files, or files named exactly like another note's alias), clean them up before trusting any wikilink: Obsidian resolves exact filenames before aliases, so a stray C-2.md silently captures every [[C-2]]. Delete empty strays after telling the user; fold a non-empty stray's content into the real note first.
 - Every commit made by /cadence:review follows the message convention below and never includes an Anthropic or Claude co-author tag.
 </important>
 
@@ -82,6 +83,19 @@ Per-kind rules:
 
 Linking is bidirectional by convention: when a note links to another, add the
 back-reference to the target's `related` list.
+
+## Stray notes
+
+Clicking an unresolved-looking wikilink in Obsidian offers to create the
+missing note -- accepting mints an empty file (by default at the vault root)
+named exactly like the link target. Because Obsidian resolves an exact
+filename before an alias, a stray `C-2.md` hijacks every `[[C-2]]` that
+should land on the real item note. Cadence never writes vault-root notes, so
+any root-level file is a stray; so is any file named exactly like another
+note's alias. The every-turn reminder and the `list_stray_notes` MCP tool
+flag both. Fresh vaults scaffolded by `/cadence:install-obsidian` point
+Obsidian's new-note default at `brain/` so accidental creations land in
+tracked territory instead.
 
 ## Legacy paths
 

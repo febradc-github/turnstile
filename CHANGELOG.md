@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.10.1 — 2026-07-03
+
+- Stray-note defense. Clicking an unresolved-looking wikilink in Obsidian can
+  mint an empty note at the vault root named exactly like the link target
+  (e.g. `C-2.md`), and Obsidian resolves exact filenames before aliases — so
+  the stray silently hijacks every `[[C-2]]` meant for the real item note.
+  Three layers now prevent a recurrence:
+  - New `list_stray_notes` MCP tool: flags any vault-root note (cadence never
+    writes one) and any note named exactly like another note's alias, with
+    empty/has-content and what it shadows.
+  - The every-turn reminder runs the same check and instructs cleanup: delete
+    empty strays, fold a non-empty stray's content into the real note first.
+  - `/cadence:install-obsidian` now scaffolds `app.json` with the new-note
+    default pointed at `brain/`, so accidental creations land in hand-edit-
+    tracked territory instead of the root (existing vaults are untouched;
+    the detection layers cover them).
+
 ## 0.10.0 — 2026-07-03
 
 - The whole `cadence/` folder is now one interconnected Obsidian vault. Every

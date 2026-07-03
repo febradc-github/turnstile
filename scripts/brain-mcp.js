@@ -322,6 +322,35 @@ function listChangedNotes(dir, args) {
   return { tracked: true, changed, acknowledged: acknowledge };
 }
 
+// Stray notes hijack wikilinks: Obsidian resolves an exact filename before an
+// alias, so an auto-created empty C-2.md (from clicking an unresolved-looking
+// link) captures every [[C-2]] that should resolve to the real item note.
+// Two signals: any note at the vault root (cadence never writes one), and any
+// note whose filename equals another note's alias.
+function listStrayNotes(dir) {
+  const notes = loadBrain(dir);
+  if (notes === null) return { strays: [], note: 'no cadence/ directory in this project' };
+  const strays = [];
+  for (const note of notes) {
+    const reasons = [];
+    if (note.folder === '') reasons.push('vault-root');
+    const shadowed = notes.find(
+      (n) => n !== note && n.aliases.some((a) => a.toLowerCase() === note.name.toLowerCase())
+    );
+    if (shadowed) reasons.push('alias-shadow');
+    if (reasons.length) {
+      strays.push({
+        name: note.name,
+        relPath: note.relPath,
+        empty: note.content.trim().length === 0,
+        reasons,
+        shadows: shadowed ? shadowed.name : null,
+      });
+    }
+  }
+  return { strays };
+}
+
 function listTags(dir) {
   const notes = loadBrain(dir);
   if (notes === null) return { tags: [], note: 'no cadence/ directory in this project' };
@@ -403,6 +432,13 @@ const TOOLS = [
     handler: listTags,
   },
   {
+    name: 'list_stray_notes',
+    description:
+      'List stray notes that hijack wikilinks: files at the vault root (cadence never writes one) or files whose name equals another note\'s alias (Obsidian resolves exact filenames before aliases, so an auto-created empty C-2.md captures every [[C-2]]). Delete empty strays; fold a non-empty stray\'s content into the real note (or migrate a legacy design/spec to its typed name) before deleting.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: listStrayNotes,
+  },
+  {
     name: 'list_changed_notes',
     description:
       'Detect knowledge notes (brain/, decisions/, architecture/) changed outside cadence (hand-edits in Obsidian) since the last acknowledged sync: added, modified, or deleted vs the tracked baseline in cadence/.brain-state.json. Pass acknowledge: true after reconciling to mark everything seen (first ever acknowledge creates the baseline). Hand-edited content is ground truth — read it before writing over it.',
@@ -477,6 +513,7 @@ module.exports = {
   getRelated,
   listOrphans,
   listUnresolvedLinks,
+  listStrayNotes,
   listTags,
   snapshotBrain,
   readState,

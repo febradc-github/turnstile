@@ -114,7 +114,7 @@ with a `cadence/` directory, except the commit guard, which is safe anywhere):
 
 | Hook | Event | Enforces |
 |---|---|---|
-| `remind.js` | UserPromptSubmit | Re-injects the gate rules and conversate routing each turn. |
+| `remind.js` | UserPromptSubmit | Re-injects the gate rules and conversate routing each turn; flags hand-edited knowledge notes and stray link-hijacking notes (Obsidian click-artifacts that shadow ticket-id aliases). |
 | `guard.js` | PreToolUse (Bash) | Blocks `git commit --no-verify` and Anthropic/Claude attribution lines. |
 | `validate-board.js` | PostToolUse (Write/Edit) | Board invariants: valid statuses, `C-<n>` ids, no duplicate ids, one `in_progress` item, one active sprint, one live copy per item, hierarchy rules (`type`/`parent` values, epics stay in the backlog, epic -> story -> task nesting only, containers never `ready`). |
 
@@ -127,7 +127,7 @@ Run the hook tests with:
 The plugin ships a dependency-free MCP server (`scripts/brain-mcp.js`) exposing
 the vault as structured tools: `search_notes`, `read_note`, `write_note`,
 `list_backlinks`, `get_related`, `list_orphans`, `list_unresolved_links`,
-`list_tags`, `list_changed_notes`.
+`list_stray_notes`, `list_tags`, `list_changed_notes`.
 It indexes every markdown note under `<project>/cadence/` per call (item
 notes, designs, specs, decisions, architecture, brain), resolving ticket-id
 aliases like `[[C-12]]`, so results always reflect the files on disk.

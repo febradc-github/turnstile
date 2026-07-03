@@ -19,6 +19,7 @@ const {
   getRelated,
   listOrphans,
   listUnresolvedLinks,
+  listStrayNotes,
   listTags,
   listChangedNotes,
 } = require('./brain-mcp.js');
@@ -155,6 +156,39 @@ test('listUnresolvedLinks treats alias-resolved targets as resolved', () => {
   ]);
 });
 
+test('listStrayNotes flags vault-root files and alias shadows, and nothing else', () => {
+  const { vault } = makeFixture();
+  assert.deepEqual(listStrayNotes(vault, {}).strays, []);
+
+  // Obsidian's click-artifact: an empty exact-name note at the vault root
+  // that captures every [[C-12]] meant for the epic's alias.
+  fs.writeFileSync(path.join(vault, 'C-12.md'), '');
+  // A root note with content and no alias collision: still stray (root).
+  fs.writeFileSync(path.join(vault, 'scratch.md'), '# Scratch\n');
+
+  const { strays } = listStrayNotes(vault, {});
+  assert.deepEqual(strays, [
+    {
+      name: 'C-12',
+      relPath: 'C-12.md',
+      empty: true,
+      reasons: ['vault-root', 'alias-shadow'],
+      shadows: 'C-12-payment-flow',
+    },
+    { name: 'scratch', relPath: 'scratch.md', empty: false, reasons: ['vault-root'], shadows: null },
+  ]);
+});
+
+test('listStrayNotes flags an alias shadow inside a folder too', () => {
+  const { vault } = makeFixture();
+  // e.g. a legacy flat design file named exactly like a ticket id.
+  fs.writeFileSync(path.join(vault, 'decisions', 'C-12.md'), '# stale\n');
+  const { strays } = listStrayNotes(vault, {});
+  assert.deepEqual(strays, [
+    { name: 'C-12', relPath: 'decisions/C-12.md', empty: false, reasons: ['alias-shadow'], shadows: 'C-12-payment-flow' },
+  ]);
+});
+
 test('writeNote creates in brain/ by default, honors folder, overwrites in place', () => {
   const { vault } = makeFixture();
   const created = writeNote(vault, { name: 'new-note', content: '# New\n' });
@@ -233,7 +267,7 @@ test('mcp server: initialize, tools/list, tools/call over stdio', async () => {
 
   assert.equal(responses[1].id, 2);
   const toolNames = responses[1].result.tools.map((t) => t.name).sort();
-  assert.deepEqual(toolNames, ['get_related', 'list_backlinks', 'list_changed_notes', 'list_orphans', 'list_tags', 'list_unresolved_links', 'read_note', 'search_notes', 'write_note']);
+  assert.deepEqual(toolNames, ['get_related', 'list_backlinks', 'list_changed_notes', 'list_orphans', 'list_stray_notes', 'list_tags', 'list_unresolved_links', 'read_note', 'search_notes', 'write_note']);
   assert.ok(responses[1].result.tools.every((t) => t.description && t.inputSchema));
 
   assert.equal(responses[2].id, 3);

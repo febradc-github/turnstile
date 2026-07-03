@@ -213,7 +213,9 @@ test('scaffold writes the three captured vault files on first run', () => {
   assert.deepEqual(scaffold(deps), { scaffolded: true, reason: 'created' });
   assert.deepEqual(mkdirs, [path.join('/proj', 'cadence', '.obsidian')]);
   assert.deepEqual(Object.keys(writes).sort(), ['app.json', 'appearance.json', 'core-plugins.json']);
-  assert.deepEqual(JSON.parse(writes['app.json']), {});
+  // New notes default into brain/ so unresolved-link clicks can't create
+  // alias-shadowing strays at the vault root.
+  assert.deepEqual(JSON.parse(writes['app.json']), { newFileLocation: 'folder', newFileFolderPath: 'brain' });
   assert.deepEqual(JSON.parse(writes['appearance.json']), {});
   const corePlugins = JSON.parse(writes['core-plugins.json']);
   assert.equal(corePlugins.graph, true);
