@@ -19,11 +19,12 @@ Lets the user talk about cadence work casually instead of memorizing command nam
 
 ## Process
 
-1. Read `cadence/backlog.yml` (if it exists) and the active `cadence/sprint-*.yml` (if one exists) to build a status snapshot.
+1. Read `cadence/backlog.yml` (if it exists) and the current sprint -- `cadence/sprint.yml`, or a legacy root `cadence/sprint-*.yml` with `sprint.status: active` -- to build a status snapshot.
 2. Match the user's request ($ARGUMENTS plus their message) against these cases, in order:
    - **Asking about status, progress, or "what's on the board":** answer directly using the snapshot from step 1 (same content as `/cadence:board` or `/cadence:standup`, whichever fits the question). Do not invoke a skill for this case.
-   - **Describing a brand-new idea not present in the backlog or any sprint:** invoke the `cadence-brainstorm` skill with the idea description.
-   - **Reporting something broken (an error, a failing test, unexpected behavior):** invoke the `cadence-systematic-debugger` skill with the report.
+   - **Describing a brand-new idea not present in the backlog or any sprint:** invoke the `cadence-brainstorm` skill with the idea description. Exception: if it is clearly trivial (a typo, a tiny chore, ~2 points or less with no design question), invoke `cadence-quick` instead -- the fast lane exists so small work skips the full pipeline.
+   - **Reporting something broken (an error, a failing test, unexpected behavior):** invoke the `cadence-systematic-debugger` skill with the report. It diagnoses first, then routes the fix: into the related in_progress ticket, or as a new bug task via cadence-quick.
+   - **Asking to cancel, kill, or drop an item:** invoke the `cadence-drop` skill with that id.
    - **Asking for a code review or feedback on a diff/change:** invoke the `cadence-code-reviewer` skill.
    - **Asking to break an item into smaller pieces (or referencing an epic that has no children yet):** invoke `cadence-breakdown` with that id.
    - **Referencing an existing item by id or title, wanting to move it forward:**
@@ -34,12 +35,13 @@ Lets the user talk about cadence work casually instead of memorizing command nam
      - In the active sprint with `status: todo` or `status: in_progress` (and the user isn't saying it's finished) -> invoke `cadence-work` with that id.
      - In the active sprint with `status: review` -> a review was started for it; if the user wants a verdict, invoke `cadence-review` with that id (it resumes an interrupted review). Otherwise just report the status.
      - In the active sprint with `status: done` -> tell them it's already shipped. Do not invoke a skill.
+     - `status: dropped` (anywhere) -> tell them it was cancelled and relay the recorded reason. Do not invoke a skill.
    - **Talking about starting a new sprint:** invoke `cadence-sprint-plan`.
    - **Anything ambiguous:** ask one clarifying question rather than guessing which skill to invoke.
 
 ## Inputs
 
-`cadence/backlog.yml`, every `cadence/sprint-*.yml`.
+`cadence/backlog.yml`, `cadence/sprint.yml`, `cadence/sprints/*.yml`.
 
 ## Outputs
 

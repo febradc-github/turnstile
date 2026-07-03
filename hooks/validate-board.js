@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-// PostToolUse validator for cadence board files (backlog.yml, sprint-N.yml).
-// Structural checks only -- no YAML dependency. Exit 2 feeds the problems
-// back to Claude so the bad write is corrected immediately.
+// PostToolUse validator for cadence board files: backlog.yml, sprint.yml (the
+// current sprint), sprints/sprint-N.yml (archives), and legacy root
+// sprint-N.yml. Structural checks only -- no YAML dependency. Exit 2 feeds
+// the problems back to Claude so the bad write is corrected immediately.
 
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ITEM_STATUSES = new Set(['todo', 'in_progress', 'review', 'done']);
+const ITEM_STATUSES = new Set(['todo', 'in_progress', 'review', 'done', 'dropped']);
 const SPRINT_STATUSES = new Set(['active', 'completed']);
 const ITEM_TYPES = new Set(['epic', 'story', 'task']);
 
 // Returns { sprintStatus, items: [{id, status, type, parent}], problems: [] }
-function scanBoardFile(filePath, kind) {
+function scanBoardFile(filePath, kind, label) {
   const problems = [];
   const items = [];
   let sprintStatus = null;
@@ -28,7 +29,7 @@ function scanBoardFile(filePath, kind) {
       current = { id: idMatch[1], status: null, type: null, parent: null };
       items.push(current);
       if (!/^C-\d+$/.test(current.id)) {
-        problems.push(`${path.basename(filePath)}: id "${current.id}" does not match C-<number>`);
+        problems.push(`${label}: id "${current.id}" does not match C-<number>`);
       }
       continue;
     }
@@ -39,27 +40,27 @@ function scanBoardFile(filePath, kind) {
       current[field] = value;
       if (field === 'type' && !ITEM_TYPES.has(value)) {
         problems.push(
-          `${path.basename(filePath)}: item ${current.id} has invalid type "${value}" (allowed: ${[...ITEM_TYPES].join(', ')})`
+          `${label}: item ${current.id} has invalid type "${value}" (allowed: ${[...ITEM_TYPES].join(', ')})`
         );
       }
       if (field === 'status' && kind === 'sprint' && !ITEM_STATUSES.has(value)) {
         problems.push(
-          `${path.basename(filePath)}: item ${current.id} has invalid status "${value}" (allowed: ${[...ITEM_STATUSES].join(', ')})`
+          `${label}: item ${current.id} has invalid status "${value}" (allowed: ${[...ITEM_STATUSES].join(', ')})`
         );
       }
       if (field === 'type' && value === 'epic' && kind === 'sprint') {
-        problems.push(`${path.basename(filePath)}: item ${current.id} is an epic; epics never enter a sprint`);
+        problems.push(`${label}: item ${current.id} is an epic; epics never enter a sprint`);
       }
     } else if (!inItems && kind === 'sprint' && field === 'status') {
       sprintStatus = value;
       if (!SPRINT_STATUSES.has(value)) {
-        problems.push(`${path.basename(filePath)}: sprint status "${value}" is invalid (allowed: active, completed)`);
+        problems.push(`${label}: sprint status "${value}" is invalid (allowed: active, completed)`);
       }
     }
   }
   const seen = new Set();
   for (const item of items) {
-    if (seen.has(item.id)) problems.push(`${path.basename(filePath)}: duplicate id ${item.id}`);
+    if (seen.has(item.id)) problems.push(`${label}: duplicate id ${item.id}`);
     seen.add(item.id);
   }
   return { sprintStatus, items, problems };
@@ -71,42 +72,56 @@ function validate(cadenceDir) {
   const backlogById = new Map(); // id -> item, backlog only (parents live there)
   let backlogItems = [];
   if (fs.existsSync(backlogPath)) {
-    const backlog = scanBoardFile(backlogPath, 'backlog');
+    const backlog = scanBoardFile(backlogPath, 'backlog', 'backlog.yml');
     problems.push(...backlog.problems);
     backlogItems = backlog.items;
     backlog.items.forEach((i) => backlogById.set(i.id, i));
   }
 
-  const sprintFiles = fs
-    .readdirSync(cadenceDir)
-    .filter((f) => /^sprint-\d+\.yml$/.test(f))
-    .sort();
-  const activeSprints = [];
-  const liveIds = new Map(); // id -> file it lives in (backlog or an active sprint)
+  // Sprint boards: sprint.yml (current), legacy root sprint-N.yml, and
+  // sprints/ archives (which must be completed).
+  const boards = [];
+  const sprintPath = path.join(cadenceDir, 'sprint.yml');
+  if (fs.existsSync(sprintPath)) boards.push({ file: sprintPath, label: 'sprint.yml', archive: false });
+  for (const f of fs.readdirSync(cadenceDir).filter((f) => /^sprint-\d+\.yml$/.test(f)).sort()) {
+    boards.push({ file: path.join(cadenceDir, f), label: f, archive: false });
+  }
+  const archiveDir = path.join(cadenceDir, 'sprints');
+  if (fs.existsSync(archiveDir)) {
+    for (const f of fs.readdirSync(archiveDir).filter((f) => /^sprint-\d+\.yml$/.test(f)).sort()) {
+      boards.push({ file: path.join(archiveDir, f), label: `sprints/${f}`, archive: true });
+    }
+  }
+
+  const activeBoards = [];
+  const liveIds = new Map(); // id -> file it lives in (backlog or an active board)
   const allItems = backlogItems.map((i) => ({ item: i, file: 'backlog.yml', live: true }));
   backlogById.forEach((_, id) => liveIds.set(id, 'backlog.yml'));
 
-  for (const file of sprintFiles) {
-    const sprint = scanBoardFile(path.join(cadenceDir, file), 'sprint');
+  for (const board of boards) {
+    const sprint = scanBoardFile(board.file, 'sprint', board.label);
     problems.push(...sprint.problems);
     const isActive = sprint.sprintStatus === 'active';
-    sprint.items.forEach((i) => allItems.push({ item: i, file, live: isActive }));
-    if (!isActive) continue;
-    activeSprints.push(file);
+    if (board.archive && isActive) {
+      problems.push(`${board.label}: archived sprints must be completed; only sprint.yml holds the active sprint`);
+    }
+    sprint.items.forEach((i) => allItems.push({ item: i, file: board.label, live: isActive && !board.archive }));
+    if (!isActive || board.archive) continue;
+    activeBoards.push(board.label);
     const inProgress = sprint.items.filter((i) => i.status === 'in_progress');
     if (inProgress.length > 1) {
-      problems.push(`${file}: ${inProgress.length} items are in_progress (${inProgress.map((i) => i.id).join(', ')}); only one is allowed`);
+      problems.push(`${board.label}: ${inProgress.length} items are in_progress (${inProgress.map((i) => i.id).join(', ')}); only one is allowed`);
     }
     for (const item of sprint.items) {
       if (liveIds.has(item.id)) {
-        problems.push(`${item.id} exists in both ${liveIds.get(item.id)} and ${file}; an item has exactly one live copy`);
+        problems.push(`${item.id} exists in both ${liveIds.get(item.id)} and ${board.label}; an item has exactly one live copy`);
       } else {
-        liveIds.set(item.id, file);
+        liveIds.set(item.id, board.label);
       }
     }
   }
-  if (activeSprints.length > 1) {
-    problems.push(`multiple active sprints (${activeSprints.join(', ')}); complete the old sprint before opening a new one`);
+  if (activeBoards.length > 1) {
+    problems.push(`multiple active sprints (${activeBoards.join(', ')}); complete the old sprint before opening a new one`);
   }
 
   // Hierarchy: containers are ids referenced as parent anywhere (history included).
@@ -121,6 +136,7 @@ function validate(cadenceDir) {
     const isContainer = containers.has(item.id);
     const allowed = new Set(isEpic || isContainer ? ['idea'] : ['idea', 'ready']);
     if (isContainer) allowed.add('done');
+    allowed.add('dropped');
     if (!allowed.has(item.status)) {
       const label = isEpic ? 'epic' : isContainer ? 'container (has children)' : 'item';
       problems.push(
@@ -163,8 +179,13 @@ process.stdin.on('end', () => {
     process.exit(0);
   }
   const filePath = (input.tool_input && input.tool_input.file_path) || '';
-  if (!/[\\/]cadence[\\/](backlog\.yml|sprint-\d+\.yml)$/.test(filePath)) process.exit(0);
-  const cadenceDir = path.dirname(filePath);
+  let cadenceDir = null;
+  if (/[\\/]cadence[\\/](backlog\.yml|sprint\.yml|sprint-\d+\.yml)$/.test(filePath)) {
+    cadenceDir = path.dirname(filePath);
+  } else if (/[\\/]cadence[\\/]sprints[\\/]sprint-\d+\.yml$/.test(filePath)) {
+    cadenceDir = path.dirname(path.dirname(filePath));
+  }
+  if (!cadenceDir) process.exit(0);
   let problems;
   try {
     problems = validate(cadenceDir);

@@ -16,14 +16,14 @@ Gives a quick, honest snapshot of where the active sprint stands, without touchi
 
 ## Process
 
-1. Find the `cadence/sprint-*.yml` with `sprint.status: active`. If none exists, tell the user and suggest `/cadence:sprint-plan`.
-2. List every item in it: id, title, status, and the last `notes` entry (if any).
+1. Read the current sprint -- `cadence/sprint.yml`, or (legacy boards) the root `cadence/sprint-*.yml` with `sprint.status: active`. If none exists, tell the user and suggest `/cadence:sprint-plan`.
+2. List every item in it: id, title, status, and the last `notes` entry (if any). Then report scope honestly: total points, points `done`, and -- if any item has `added_mid_sprint: true` -- "N of M points were added mid-sprint" so quiet scope growth is visible. If mid-sprint additions dominate sprint after sprint, that is a process learning worth a `brain-curator` dispatch... except standup is read-only: surface it and suggest the user let the next gated skill record it.
 3. Search the vault for notes related to items currently `in_progress` or `review`; surface anything relevant, especially anything that looks like a blocker.
 4. Ask the user what they want to focus on today.
 
 ## Inputs
 
-The active `cadence/sprint-*.yml`, the vault's markdown notes.
+`cadence/sprint.yml` (the current sprint), the vault's markdown notes.
 
 ## Outputs
 

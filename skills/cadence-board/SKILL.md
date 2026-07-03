@@ -16,13 +16,13 @@ Renders the full board -- backlog plus active sprint -- as a readable snapshot, 
 
 ## Process
 
-1. Read `cadence/backlog.yml` (if it exists). Render its items as a table: id, title, type (`epic`/`story`/`task`; blank means story), status (`idea`/`ready`/`done`), points. Group hierarchically: each epic first, its children indented beneath it (and their tasks beneath them), then flat items. For every container, append child progress to its row: `<done children>/<total children> done`, counting children across the backlog and all sprint files.
-2. Find the `cadence/sprint-*.yml` with `sprint.status: active` (if any). Render its goal and items as a table: id, title, parent (when set), status (`todo`/`in_progress`/`review`/`done`), points, carryovers.
+1. Read `cadence/backlog.yml` (if it exists). Render its items as a table: id, title, type (`epic`/`story`/`task`; blank means story), status (`idea`/`ready`/`done`/`dropped`), points. Group hierarchically: each epic first, its children indented beneath it (and their tasks beneath them), then flat items. For every container, append child progress to its row: `<done children>/<total children> done`, counting children across the backlog, `sprint.yml`, and `sprints/*.yml`. Render `dropped` items last, marked as cancelled.
+2. Read the current sprint -- `cadence/sprint.yml`, or (legacy boards) the root `cadence/sprint-*.yml` with `sprint.status: active`. Render its goal and items as a table: id, title, parent (when set), status (`todo`/`in_progress`/`review`/`done`/`dropped`), points, carryovers, and a `+` marker on items with `added_mid_sprint: true`.
 3. If neither file exists yet, tell the user the board is empty and suggest `/cadence:refine <idea>` to start.
 
 ## Inputs
 
-`cadence/backlog.yml`, every `cadence/sprint-*.yml`.
+`cadence/backlog.yml`, `cadence/sprint.yml`, `cadence/sprints/*.yml`.
 
 ## Outputs
 

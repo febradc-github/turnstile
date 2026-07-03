@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.12.0 — 2026-07-03
+
+- Stable sprint board: the current sprint always lives at `cadence/sprint.yml`
+  (with a `number` field); completed sprints are archived immutably to
+  `cadence/sprints/sprint-<N>.yml` by sprint-plan, which also migrates legacy
+  root `sprint-N.yml` files. Two fixed filenames answer "what's waiting"
+  (backlog.yml) and "what's happening" (sprint.yml); archives feed velocity.
+- Slim YAML: board entries now carry tracking fields only (id, title, type,
+  parent, status, points, assignee, carryovers, notes). Descriptions live in
+  the item notes, acceptance criteria in the specs — the spec-to-backlog
+  verbatim-copy rule is gone, eliminating that drift class. Legacy long
+  fields are ignored and removed opportunistically.
+- New `/cadence:quick`: the fast lane. Trivial work (≤2 points, no design
+  questions) or a diagnosed bug becomes a task/story with inline acceptance
+  criteria in its item note — no design doc, no spec, one approval — added to
+  the current sprint (`added_mid_sprint: true`) or as `ready` backlog when no
+  sprint is active. work/review read quick items' criteria from the item note.
+- Bugs become tracked work: systematic-debugger, after confirming a root
+  cause, fixes it inside the related `in_progress` ticket's diff, or (if
+  unrelated) creates a quick bug task that runs right after — starting it
+  immediately when nothing is in progress. Closes the hole where bug fixes
+  ended as unreviewed, uncommitted changes; the one-in_progress rule stands.
+- New `/cadence:drop`: cancellation with a paper trail. Sets `status: dropped`
+  with a recorded reason (cascading over children after confirmation) instead
+  of hand-deleting YAML; dropped items render as cancelled on the board and
+  parent rollups ignore them.
+- Standup now reports mid-sprint scope growth ("N of M points added
+  mid-sprint"); the board marks quick-added items.
+- validate-board.js enforces the new layout: `sprint.yml` is the only active
+  board, `sprints/` archives must be completed, `dropped` accepted everywhere,
+  legacy root sprint files still validated.
+- README documents what `C-` means (the shared cadence ticket counter).
+
 ## 0.11.0 — 2026-07-03
 
 - Corrected a wrong assumption from 0.10.0: Obsidian resolves a `[[wikilink]]`

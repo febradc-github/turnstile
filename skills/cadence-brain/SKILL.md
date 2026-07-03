@@ -9,7 +9,7 @@ user-invocable: false
 <important>
 - Before starting new work, search the vault for notes related to the topic -- prefer the cadence-brain MCP tools (search_notes, get_related) over raw greps when available; they index every markdown note in cadence/. Surface what you find, including conflicting notes, before proceeding -- never silently pick a side.
 - Only the brain-curator agent writes or edits files in cadence/brain/, cadence/decisions/, and cadence/architecture/. Item notes, designs, and specs are written by their gated skills (refine, breakdown, spec). No other writes.
-- Status lives only in the YAML board (backlog.yml, sprint-N.yml). Notes never carry a status field -- a second copy would drift.
+- Status lives only in the YAML board (backlog.yml, sprint.yml, archived sprints). Notes never carry a status field -- a second copy would drift.
 - Obsidian resolves a [[wikilink]] by exact filename only. Aliases feed autocomplete and the quick switcher but never resolve a typed link. So: every [[wikilink]] written to any cadence note must name an existing file exactly (verify with read_note or search_notes first), and never write a board id as a link -- [[C-2]] does not resolve; the item note is [[US-2]] (or [[EP-2]]/[[TK-2]]). Write C-2 as plain text or link the typed name. An unresolved link is a click-trap that mints a stray note.
 - When a set of mutually-linked notes is created together (item note + design), finish all of them in the same pass and confirm nothing is left dangling (list_unresolved_links).
 - If the every-turn reminder or list_stray_notes reports stray notes (vault-root files, duplicate basenames, or files named exactly like another note's alias), clean them up before trusting any wikilink. Delete empty strays after telling the user; fold a non-empty stray's content into the real note first.
@@ -28,7 +28,9 @@ artifact a node in the Obsidian graph, and the commit message convention.
 shared note format, so everything interconnects in Graph View:
 
     cadence/
-      backlog.yml, sprint-N.yml    # the board: status, points, planning
+      backlog.yml                  # unplanned work (idea/ready/dropped)
+      sprint.yml                   # the current sprint -- always this name
+      sprints/sprint-<N>.yml       # completed sprints, immutable archive
       epics/EP-<n>.md              # one item note per epic
       user-stories/US-<n>.md       # one item note per user story
       tasks/TK-<n>.md              # one item note per task
@@ -74,8 +76,10 @@ Per-kind rules:
   search_notes find them either way. Body: heading `# C-<n>: <title>`, a
   one-paragraph summary, then links -- `Design: [[DS-<n>]]`,
   `Spec: [[SP-<n>]]`, `Parent: [[EP-<p>]]`, and a `Children:` list on
-  containers. No status, no acceptance criteria -- the board and the spec own
-  those.
+  containers. No status -- the board owns it. No acceptance criteria either,
+  with one exception: quick-lane items (created by /cadence:quick, which skips
+  design and spec) carry an inline "## Acceptance criteria" section in the
+  item note, and /cadence:review reads it from there.
 - **Designs** (`type: design`, `DS-<n>`) and **specs** (`type: spec`,
   `SP-<n>`): keep their existing body sections, plus frontmatter and a link
   back to their item note (and the parent's design for breakdown children).

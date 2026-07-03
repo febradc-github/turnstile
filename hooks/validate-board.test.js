@@ -12,7 +12,9 @@ function makeCadenceDir(files) {
   const cadenceDir = path.join(tmpDir, 'cadence');
   fs.mkdirSync(cadenceDir);
   for (const [name, content] of Object.entries(files)) {
-    fs.writeFileSync(path.join(cadenceDir, name), content);
+    const filePath = path.join(cadenceDir, name);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, content);
   }
   return cadenceDir;
 }
@@ -35,6 +37,7 @@ const GOOD_BACKLOG = `items:
 
 const GOOD_SPRINT = `sprint:
   name: "Sprint 1"
+  number: 1
   goal: "Ship it"
   status: active
 items:
@@ -46,10 +49,10 @@ items:
     status: todo
 `;
 
-test('passes a valid backlog and sprint', () => {
-  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint-1.yml': GOOD_SPRINT });
+test('passes a valid backlog and current sprint', () => {
+  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint.yml': GOOD_SPRINT });
   assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
-  assert.equal(runValidator(path.join(dir, 'sprint-1.yml')).status, 0);
+  assert.equal(runValidator(path.join(dir, 'sprint.yml')).status, 0);
 });
 
 test('ignores files outside cadence board paths', () => {
@@ -66,6 +69,20 @@ test('rejects an invalid backlog status', () => {
   assert.match(result.stderr, /invalid status "in_progress"/);
 });
 
+test('accepts dropped items in backlog and sprint', () => {
+  const backlog = GOOD_BACKLOG.replace('status: ready', 'status: dropped');
+  const sprint = GOOD_SPRINT.replace('status: todo', 'status: dropped');
+  const dir = makeCadenceDir({ 'backlog.yml': backlog, 'sprint.yml': sprint });
+  assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
+});
+
+test('accepts a dropped epic even without children', () => {
+  const dir = makeCadenceDir({
+    'backlog.yml': 'items:\n  - id: C-1\n    type: epic\n    status: dropped\n',
+  });
+  assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
+});
+
 test('rejects duplicate ids within a file', () => {
   const dir = makeCadenceDir({
     'backlog.yml': 'items:\n  - id: C-1\n    status: idea\n  - id: C-1\n    status: ready\n',
@@ -75,44 +92,57 @@ test('rejects duplicate ids within a file', () => {
   assert.match(result.stderr, /duplicate id C-1/);
 });
 
-test('rejects two in_progress items in the active sprint', () => {
+test('rejects two in_progress items in the current sprint', () => {
   const sprint = GOOD_SPRINT.replace('status: todo', 'status: in_progress');
-  const dir = makeCadenceDir({ 'sprint-1.yml': sprint });
-  const result = runValidator(path.join(dir, 'sprint-1.yml'));
+  const dir = makeCadenceDir({ 'sprint.yml': sprint });
+  const result = runValidator(path.join(dir, 'sprint.yml'));
   assert.equal(result.status, 2);
   assert.match(result.stderr, /only one is allowed/);
 });
 
-test('rejects an id living in both backlog and the active sprint', () => {
+test('rejects an id living in both backlog and the current sprint', () => {
   const sprint = GOOD_SPRINT.replace('id: C-3', 'id: C-1');
-  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint-1.yml': sprint });
-  const result = runValidator(path.join(dir, 'sprint-1.yml'));
+  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint.yml': sprint });
+  const result = runValidator(path.join(dir, 'sprint.yml'));
   assert.equal(result.status, 2);
   assert.match(result.stderr, /exactly one live copy/);
 });
 
-test('allows a completed sprint to keep historical copies', () => {
+test('allows an archived sprint to keep historical copies', () => {
   const completed = GOOD_SPRINT.replace('status: active', 'status: completed').replace(
     'id: C-3',
     'id: C-1'
   );
-  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint-1.yml': completed });
+  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprints/sprint-1.yml': completed });
   assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
+  assert.equal(runValidator(path.join(dir, 'sprints', 'sprint-1.yml')).status, 0);
 });
 
-test('rejects two active sprints', () => {
+test('rejects an active sprint in the archive folder', () => {
+  const dir = makeCadenceDir({ 'sprints/sprint-1.yml': GOOD_SPRINT });
+  const result = runValidator(path.join(dir, 'sprints', 'sprint-1.yml'));
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /archived sprints must be completed/);
+});
+
+test('still validates a legacy root sprint-N.yml as the active sprint', () => {
+  const dir = makeCadenceDir({ 'backlog.yml': GOOD_BACKLOG, 'sprint-1.yml': GOOD_SPRINT });
+  assert.equal(runValidator(path.join(dir, 'sprint-1.yml')).status, 0);
+});
+
+test('rejects two active sprints (sprint.yml plus a legacy root file)', () => {
   const dir = makeCadenceDir({
-    'sprint-1.yml': GOOD_SPRINT,
-    'sprint-2.yml': GOOD_SPRINT.replace('id: C-3', 'id: C-5').replace('id: C-4', 'id: C-6'),
+    'sprint.yml': GOOD_SPRINT,
+    'sprint-1.yml': GOOD_SPRINT.replace('id: C-3', 'id: C-5').replace('id: C-4', 'id: C-6'),
   });
-  const result = runValidator(path.join(dir, 'sprint-2.yml'));
+  const result = runValidator(path.join(dir, 'sprint.yml'));
   assert.equal(result.status, 2);
   assert.match(result.stderr, /multiple active sprints/);
 });
 
 test('rejects an invalid sprint status', () => {
-  const dir = makeCadenceDir({ 'sprint-1.yml': GOOD_SPRINT.replace('status: active', 'status: open') });
-  const result = runValidator(path.join(dir, 'sprint-1.yml'));
+  const dir = makeCadenceDir({ 'sprint.yml': GOOD_SPRINT.replace('status: active', 'status: open') });
+  const result = runValidator(path.join(dir, 'sprint.yml'));
   assert.equal(result.status, 2);
   assert.match(result.stderr, /sprint status "open" is invalid/);
 });
@@ -141,7 +171,7 @@ test('passes a valid epic -> story hierarchy in the backlog', () => {
   assert.equal(runValidator(path.join(dir, 'backlog.yml')).status, 0);
 });
 
-test('passes a task in a sprint whose parent story lives in the backlog', () => {
+test('passes a task in the current sprint whose parent story lives in the backlog', () => {
   // C-2 has a child, so it is a container and must sit at idea, not ready.
   const backlog = HIERARCHY_BACKLOG.replace('parent: C-1\n    status: ready', 'parent: C-1\n    status: idea');
   const sprint = `sprint:
@@ -153,8 +183,8 @@ items:
     parent: C-2
     status: todo
 `;
-  const dir = makeCadenceDir({ 'backlog.yml': backlog, 'sprint-1.yml': sprint });
-  assert.equal(runValidator(path.join(dir, 'sprint-1.yml')).status, 0);
+  const dir = makeCadenceDir({ 'backlog.yml': backlog, 'sprint.yml': sprint });
+  assert.equal(runValidator(path.join(dir, 'sprint.yml')).status, 0);
 });
 
 test('rejects an invalid item type', () => {
@@ -168,8 +198,8 @@ test('rejects an invalid item type', () => {
 
 test('rejects an epic inside a sprint file', () => {
   const sprint = GOOD_SPRINT.replace('id: C-3\n    title: "Third"', 'id: C-3\n    title: "Third"\n    type: epic');
-  const dir = makeCadenceDir({ 'sprint-1.yml': sprint });
-  const result = runValidator(path.join(dir, 'sprint-1.yml'));
+  const dir = makeCadenceDir({ 'sprint.yml': sprint });
+  const result = runValidator(path.join(dir, 'sprint.yml'));
   assert.equal(result.status, 2);
   assert.match(result.stderr, /epics never enter a sprint/);
 });

@@ -23,12 +23,12 @@ Implements one ticket end to end for a single work session, logging what happene
 
 ## Process
 
-1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file. If no active sprint exists, or the id isn't in it, tell the user and suggest `/cadence:sprint-plan`.
+1. Look up `<id>` (from `$ARGUMENTS`) in the current sprint -- `cadence/sprint.yml`, or (legacy boards) the root `cadence/sprint-<N>.yml` with `sprint.status: active`. If no active sprint exists, or the id isn't in it, tell the user and suggest `/cadence:sprint-plan` (or `/cadence:quick` for small work).
 2. If the item's `assignee` is `human`, refuse: tell the user this ticket is tracked as human-owned and point them at it instead of implementing it.
 3. If the item's `status` isn't `todo` or `in_progress` (e.g. it's still `idea`/`ready` and was never planned into this sprint, or it's mid-`review`), refuse and redirect to the correct earlier step.
 4. If any *other* item in the active sprint already has `status: in_progress`, refuse: tell the user to finish that item first (move it to `review` or `done` via `/cadence:review`) before starting this one. Only one item may be `in_progress` at a time.
 5. Search the vault (brain, decisions, architecture, item notes -- the search_notes MCP tool indexes all of them) for notes related to this ticket's topic. Surface anything relevant, including conflicts, before writing code -- this is the "hasn't this already been built" check. Pay particular attention to `cadence/decisions/adr-*.md` and `cadence/architecture/AR-*.md` notes touching this area: the implementation must not silently contradict a recorded decision.
-6. Read the ticket's spec -- `cadence/specs/SP-<n>.md` (`<n>` from `<id>` = `C-<n>`), falling back to legacy names (`cadence/specs/<id>-*-spec.md`, `cadence/specs/<id>.md`) -- for the acceptance criteria driving this ticket. If the item has a `parent`, also read the parent chain's design docs (`cadence/designs/DS-<parent n>.md`, or their legacy names) -- the umbrella rationale often settles implementation questions the leaf spec doesn't repeat.
+6. Read the ticket's spec -- `cadence/specs/SP-<n>.md` (`<n>` from `<id>` = `C-<n>`), falling back to legacy names (`cadence/specs/<id>-*-spec.md`, `cadence/specs/<id>.md`) -- for the acceptance criteria driving this ticket. No spec file means a quick-lane item: its acceptance criteria live in the item note (`TK-<n>`/`US-<n>`, "## Acceptance criteria" section); read them there. If the item has a `parent`, also read the parent chain's design docs (`cadence/designs/DS-<parent n>.md`, or their legacy names) -- the umbrella rationale often settles implementation questions the leaf spec doesn't repeat.
 7. Set the item's `status` to `in_progress` if it was `todo` -- before writing any code, so an interrupted session still leaves the board accurate.
 8. If any acceptance criterion is UI-facing, defer to the `frontend-design` skill (if installed) for that portion of the work.
 9. Implement by dispatching the `cadence-coder` agent, passing the spec's acceptance criteria, the relevant brain notes from step 5, pointers to the affected files, and any decisions already gathered from the user (e.g. UI choices from step 8). It implements test-first (failing test per criterion, then minimal code to pass) and reports back files changed, test results, and notes. Dispatch it for every change, no matter how small -- docstring, comment, and polish passes included. If questions surface mid-implementation, resolve them with the user and re-dispatch; never finish the code yourself.
@@ -47,7 +47,7 @@ Implements one ticket end to end for a single work session, logging what happene
 
 ## Inputs
 
-The active `cadence/sprint-*.yml`, the ticket's spec, the parent chain's design docs, the vault's markdown notes.
+`cadence/sprint.yml` (the current sprint), the ticket's spec or item note, the parent chain's design docs, the vault's markdown notes.
 
 ## Outputs
 

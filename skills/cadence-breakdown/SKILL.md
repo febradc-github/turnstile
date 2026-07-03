@@ -32,7 +32,7 @@ enters sprints as reviewable leaf tickets instead of one unshippable blob.
 5. Draft 2-8 children. For each: a clear title, a one-paragraph description, non-empty `acceptance_criteria` (concrete, checkable), a `points` estimate, and an `assignee` (inherit the parent's unless the user says otherwise). Children must partition the parent's scope: together they cover the parent's acceptance criteria, and no two children overlap. If the parent's scope honestly fits in one child, say so and recommend skipping breakdown.
 6. Present the full proposal (every child, every field) and ask the user to explicitly approve it. Revise and re-present on requested changes. Do not write anything until they approve.
 7. Once approved:
-   - Mint child ids: scan `cadence/backlog.yml` and every `cadence/sprint-*.yml` for existing `C-<N>` ids; children get `C-<max+1>`, `C-<max+2>`, ... For each computed id, check no `cadence/designs/DS-<n>.md` (or legacy `cadence/designs/<id>*.md`) already exists (an abandoned refine/breakdown draft may hold it); if one does, warn the user and skip forward to the next free id -- never overwrite silently.
+   - Mint child ids: scan `cadence/backlog.yml`, `cadence/sprint.yml`, and `cadence/sprints/*.yml` (plus any legacy `cadence/sprint-*.yml`) for existing `C-<N>` ids; children get `C-<max+1>`, `C-<max+2>`, ... For each computed id, check no `cadence/designs/DS-<n>.md` (or legacy `cadence/designs/<id>*.md`) already exists (an abandoned refine/breakdown draft may hold it); if one does, warn the user and skip forward to the next free id -- never overwrite silently.
    - Each child `C-<n>` gets a design `DS-<n>` and an item note `US-<n>` (story) or `TK-<n>` (task). Write `cadence/designs/DS-<n>.md` for each child:
 
          ---
@@ -93,13 +93,12 @@ enters sprints as reviewable leaf tickets instead of one unshippable blob.
            type: <story|task>
            parent: <parent-id>
            status: idea
-           description: "<one-paragraph description>"
-           acceptance_criteria: ["<criterion 1>", "<criterion 2>"]
            points: <points>
            assignee: <claude|human>
-           tags: []
            created: <today, YYYY-MM-DD>
            updated: <today, YYYY-MM-DD>
+
+     (Tracking fields only -- each child's description and criteria live in its design doc and item note, never in YAML.)
 
    - Update the parent in `cadence/backlog.yml`: it is now a container. If its `status` was `ready`, set it back to `idea` (containers never enter sprints; the children do). Set `updated` to today.
 8. If the dialogue surfaced something worth remembering (a scoping decision, a rejected split and why), dispatch the `brain-curator` agent with a short description of it.
@@ -107,7 +106,7 @@ enters sprints as reviewable leaf tickets instead of one unshippable blob.
 
 ## Inputs
 
-`cadence/backlog.yml`, every `cadence/sprint-*.yml` (id computation only), the parent's design doc, the vault's markdown notes.
+`cadence/backlog.yml`, `cadence/sprint.yml` and `cadence/sprints/*.yml` (id computation only), the parent's design doc, the vault's markdown notes.
 
 ## Outputs
 

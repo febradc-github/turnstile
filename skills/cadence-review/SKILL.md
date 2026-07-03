@@ -20,9 +20,9 @@ The done-ness gate. An implementer judging their own work is unreliable, so this
 
 ## Process
 
-1. Look up `<id>` (from `$ARGUMENTS`) in the active sprint file (the `cadence/sprint-*.yml` with `sprint.status: active`). If not found, or its `status` isn't `in_progress` or `review`, refuse and tell the user what to do instead (e.g. run `/cadence:work <id>` first, or `/cadence:sprint-plan` if no active sprint exists). A `status: review` item means a prior review session was interrupted before reaching a verdict -- tell the user that, then resume from step 3.
+1. Look up `<id>` (from `$ARGUMENTS`) in the current sprint -- `cadence/sprint.yml`, or (legacy boards) the root `cadence/sprint-<N>.yml` with `sprint.status: active`. If not found, or its `status` isn't `in_progress` or `review`, refuse and tell the user what to do instead (e.g. run `/cadence:work <id>` first, or `/cadence:sprint-plan` if no active sprint exists). A `status: review` item means a prior review session was interrupted before reaching a verdict -- tell the user that, then resume from step 3.
 2. Set the item's `status` to `review`.
-3. Read the ticket's spec -- `cadence/specs/SP-<n>.md` (`<n>` from `<id>` = `C-<n>`), falling back to legacy names (`cadence/specs/<id>-*-spec.md`, `cadence/specs/<id>.md`) -- for its acceptance criteria.
+3. Read the ticket's spec -- `cadence/specs/SP-<n>.md` (`<n>` from `<id>` = `C-<n>`), falling back to legacy names (`cadence/specs/<id>-*-spec.md`, `cadence/specs/<id>.md`) -- for its acceptance criteria. No spec file means a quick-lane item: its criteria live in the item note's "## Acceptance criteria" section; use those. An item with criteria in neither place cannot be reviewed -- refuse and say why.
 4. Get the diff of what changed for this ticket (`git diff` / `git status` against the last commit). Since `/cadence:work` enforces only one `in_progress` item at a time, this diff should represent exactly this ticket's changes; if `git status` shows unrelated uncommitted changes anyway, stop and ask the user before proceeding rather than folding them into this ticket's review or commit.
 5. Dispatch the `cadence-reviewer` agent via the Task tool, passing only the acceptance criteria and the diff -- no implementation-session narrative or reasoning.
 6. If the agent's verdict is FAIL:
@@ -31,14 +31,14 @@ The done-ness gate. An implementer judging their own work is unreliable, so this
    - Tell the user what needs to change. Do not commit.
 7. If the agent's verdict is PASS:
    - Set the item's `status` to `done`.
-   - If the item has a `parent`, check every child of that parent (children live across `cadence/backlog.yml` and all `cadence/sprint-*.yml` files; match on `parent: <parent-id>`). If all are now `done`, set the parent's `status` to `done` in `cadence/backlog.yml` and tell the user the epic/story is complete. Cascade: if that parent has a `parent` of its own, repeat the check one level up. This rollup is the one exception to "only the reviewer marks done" -- each child was individually reviewer-certified, so the parent's done-ness is derived, not judged.
+   - If the item has a `parent`, check every child of that parent (children live across `cadence/backlog.yml`, `cadence/sprint.yml`, and `cadence/sprints/*.yml`; match on `parent: <parent-id>`). If all are now `done` (ignoring `dropped` children), set the parent's `status` to `done` in `cadence/backlog.yml` and tell the user the epic/story is complete. Cascade: if that parent has a `parent` of its own, repeat the check one level up. This rollup is the one exception to "only the reviewer marks done" -- each child was individually reviewer-certified, so the parent's done-ness is derived, not judged.
    - Compare `points` against the coarse actual-effort signals already on hand: `carryovers` and the number of "work pass" entries logged in `notes` (from `/cadence:work`). If `carryovers > 0` or there are 3+ work passes against a `points` estimate of 3 or less (or an equivalent clear mismatch), dispatch the `brain-curator` agent with that observation as a candidate process learning. Do not claim wall-clock timing -- only these coarse counts.
    - Stage the changed files together with the updated active sprint file (so the `done` status and `notes` update land in the same commit as the implementation, not as a separate uncommitted change), plus `cadence/backlog.yml` when a parent rollup updated it, and commit: `git commit -m "<verb>: <title> (<id>)"` following the brain skill's commit message convention (no Anthropic/Claude co-author tag, no `--no-verify`).
    - Tell the user the ticket is done and committed.
 
 ## Inputs
 
-The active `cadence/sprint-*.yml`, the ticket's spec, `git diff`/`git status`.
+`cadence/sprint.yml` (the current sprint), the ticket's spec or item note, `git diff`/`git status`.
 
 ## Outputs
 

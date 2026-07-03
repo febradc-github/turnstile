@@ -35,7 +35,9 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/cadence:refine [idea]` | Gap-closing dialogue; writes a design doc for approval. Epic-sized ideas are recorded as epics and handed to breakdown. |
 | `/cadence:breakdown [id]` | Decomposes an epic into user stories, or an oversized story into tasks; requires approval. |
 | `/cadence:spec [id]` | Turns an approved design into a checkable spec; requires approval. |
-| `/cadence:sprint-plan` | Starts a new sprint; recommends which ready items to pull in and proposes a goal; rolls over unfinished work. |
+| `/cadence:sprint-plan` | Starts a new sprint; archives the finished one; recommends which ready items to pull in and proposes a goal; rolls over unfinished work. |
+| `/cadence:quick [description]` | Fast lane: trivial work or a diagnosed bug becomes a small task in the current sprint after one approval -- no design doc, no spec. 2 points max. |
+| `/cadence:drop [id] [reason]` | Cancels a ticket: status `dropped` with a recorded reason. History, not deletion. |
 | `/cadence:work [id]` | Implements one ticket with TDD. |
 | `/cadence:review [id]` | Independent done-ness check; commits on pass. |
 | `/cadence:standup` | Read-only progress/blocker report on the active sprint. |
@@ -70,6 +72,15 @@ into tasks; two levels max). Each child then flows through spec -> ready ->
 sprint on its own. Epics and other parents never enter a sprint; when the last
 child passes review, the parent is marked done automatically.
 
+Two pragmatic side doors keep the pipeline agile. `/cadence:quick` lets
+trivial work (≤2 points, criteria written inline in the item note) enter the
+current sprint after a single approval, marked `added_mid_sprint` so standup
+reports scope growth honestly. And a reported bug becomes tracked work via
+the debugger: related to the in-progress ticket, it's fixed within that
+ticket's diff; unrelated, it becomes a quick bug task that runs right after —
+so every fix is reviewed and committed under a ticket, and only one thing is
+ever in progress.
+
 `/cadence:conversate` classifies a message and drives this pipeline directly
 instead of requiring each command to be typed by hand.
 
@@ -81,7 +92,9 @@ note format (frontmatter + wikilinks), so items, designs, specs, decisions,
 architecture, and brain notes all interconnect in Graph View:
 
     cadence/
-      backlog.yml, sprint-1.yml         # the board: status, points, planning
+      backlog.yml                       # unplanned work: idea -> ready (or dropped)
+      sprint.yml                        # the current sprint -- always this filename
+      sprints/sprint-<N>.yml            # completed sprints, immutable archive
       epics/EP-<n>.md                   # one item note per epic
       user-stories/US-<n>.md            # one item note per user story
       tasks/TK-<n>.md                   # one item note per task
@@ -92,9 +105,15 @@ architecture, and brain notes all interconnect in Graph View:
       brain/*.md, brain/moc-<topic>.md  # domain/process knowledge, MOCs
       .brain-state.json                 # hand-edit tracking baseline
 
-`<n>` is the ticket's board number: ticket `C-7` maps to `EP-7`/`US-7`/`TK-7`
-(by type) plus `DS-7` and `SP-7`, so one number traces a ticket across every
-folder. Links always use these typed names (`[[US-7]]`, `[[DS-7]]`) because
+Ticket ids are `C-<n>` -- the `C` simply means *cadence*, one shared counter
+for every item so a number is minted exactly once. `<n>` is that same number:
+ticket `C-7` maps to `EP-7`/`US-7`/`TK-7` (by type) plus `DS-7` and `SP-7`,
+so one number traces a ticket across every folder.
+
+The YAML board holds tracking fields only (id, title, type, parent, status,
+points, assignee, carryovers, notes) -- descriptions live in the item notes
+and acceptance criteria in the specs, so no fact has two copies that can
+drift. Links always use these typed names (`[[US-7]]`, `[[DS-7]]`) because
 Obsidian resolves wikilinks by exact filename only -- aliases never resolve a
 raw link. Item notes carry the board id and title as aliases for search and
 autocomplete. Status lives only in the YAML board -- notes never duplicate
@@ -120,7 +139,7 @@ with a `cadence/` directory, except the commit guard, which is safe anywhere):
 |---|---|---|
 | `remind.js` | UserPromptSubmit | Re-injects the gate rules and conversate routing each turn; flags hand-edited knowledge notes and stray link-hijacking notes (Obsidian click-artifacts that shadow ticket-id aliases). |
 | `guard.js` | PreToolUse (Bash) | Blocks `git commit --no-verify` and Anthropic/Claude attribution lines. |
-| `validate-board.js` | PostToolUse (Write/Edit) | Board invariants: valid statuses, `C-<n>` ids, no duplicate ids, one `in_progress` item, one active sprint, one live copy per item, hierarchy rules (`type`/`parent` values, epics stay in the backlog, epic -> story -> task nesting only, containers never `ready`). |
+| `validate-board.js` | PostToolUse (Write/Edit) | Board invariants: valid statuses (incl. `dropped`), `C-<n>` ids, no duplicate ids, one `in_progress` item, one active sprint (`sprint.yml`; archives in `sprints/` must be completed), one live copy per item, hierarchy rules (`type`/`parent` values, epics stay in the backlog, epic -> story -> task nesting only, containers never `ready`). |
 
 Run the hook tests with:
 

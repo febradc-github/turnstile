@@ -22,7 +22,7 @@ Turns a raw idea ($ARGUMENTS) into an approved design doc and a tracked backlog 
 ## Process
 
 1. Search the vault (brain, decisions, architecture, and existing item notes -- the search_notes MCP tool indexes all of them) for notes related to the idea's topic. Surface anything relevant, including conflicts, before continuing.
-2. Compute the next ticket ID: scan `cadence/backlog.yml` and every `cadence/sprint-*.yml` for existing `C-<N>` ids across all `items` lists; the new id is `C-<max+1>`, or `C-1` if none exist. If `cadence/backlog.yml` does not exist yet, it will be created in step 6 with `items: []`.
+2. Compute the next ticket ID: scan `cadence/backlog.yml`, `cadence/sprint.yml`, `cadence/sprints/*.yml`, and any legacy `cadence/sprint-*.yml` for existing `C-<N>` ids across all `items` lists; the new id is `C-<max+1>`, or `C-1` if none exist. If `cadence/backlog.yml` does not exist yet, it will be created in step 6 with `items: []`.
 3. Run a one-question-at-a-time dialogue with the user to establish:
    - A clear title and one-paragraph description of the problem.
    - **Architecture fit:** where this sits in the existing system. Read any related `cadence/architecture/AR-*.md` and `cadence/decisions/adr-*.md` notes first (the step 1 search surfaces them); ask about integration points, affected components, and whether the work bends any recorded decision. If it contradicts an existing ADR, surface that conflict explicitly -- the user decides whether the old decision is superseded.
@@ -78,15 +78,12 @@ Turns a raw idea ($ARGUMENTS) into an approved design doc and a tracked backlog 
        - id: <id>
          title: "<title>"
          status: idea
-         description: "<one-paragraph description>"
-         acceptance_criteria: ["<criterion 1>", "<criterion 2>"]
          points: <points>
          assignee: <claude|human>
-         tags: []
          created: <today, YYYY-MM-DD>
          updated: <today, YYYY-MM-DD>
 
-   For an epic-sized item (step 3), add `type: epic` after `title`.
+   For an epic-sized item (step 3), add `type: epic` after `title`. The board holds tracking fields only -- the description lives in the item note, the criteria in the design doc and later the spec. Never copy prose into YAML.
 
    Also write the item note -- `cadence/epics/EP-<n>.md` for an epic, `cadence/user-stories/US-<n>.md` otherwise:
 
@@ -113,7 +110,7 @@ Turns a raw idea ($ARGUMENTS) into an approved design doc and a tracked backlog 
 
 ## Inputs
 
-The vault's markdown notes (`cadence/brain/`, `cadence/decisions/`, `cadence/architecture/`, item notes), `cadence/backlog.yml`, every `cadence/sprint-*.yml` (for id computation only).
+The vault's markdown notes (`cadence/brain/`, `cadence/decisions/`, `cadence/architecture/`, item notes), `cadence/backlog.yml`, `cadence/sprint.yml` and `cadence/sprints/*.yml` (for id computation only).
 
 ## Outputs
 

@@ -50,8 +50,8 @@ Converts the rationale in the item's design doc into a checklist of concrete acc
 6. Present the spec file content to the user and ask them to explicitly approve it. If they request changes, revise and re-present. Do not proceed until approved.
 7. Once approved, update the item in `cadence/backlog.yml`:
    - `status: ready`
-   - `acceptance_criteria` set to match the checklist items verbatim (as plain strings, without the `[ ]` markers)
    - `updated` set to today's date
+   The spec file is the sole home of the acceptance criteria -- never copy them into the YAML (if a legacy item still carries an `acceptance_criteria` field, remove it while you're here).
 
    And update the item's note (`cadence/user-stories/US-<n>.md` or `cadence/tasks/TK-<n>.md`): add `- Spec: [[SP-<n>]]` to its links, add the spec to `related`, and set `updated` to today. (A legacy item with no note yet: create one now in its type's folder, following the cadence-brain item note format.) Before finishing, confirm every [[wikilink]] added resolves to an existing note filename (list_unresolved_links); an unresolved link is a click-trap that mints a stray note in Obsidian.
 8. Tell the user the item is `ready` and can be pulled into a sprint with `/cadence:sprint-plan`.
