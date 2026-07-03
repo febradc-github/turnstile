@@ -109,6 +109,11 @@ function writeNote(dir, args) {
   const filePath = path.join(dir, name + '.md');
   const overwrote = fs.existsSync(filePath);
   fs.writeFileSync(filePath, content);
+  const state = readState(dir);
+  if (state) {
+    state.notes[name] = fs.statSync(filePath).mtimeMs;
+    fs.writeFileSync(stateFilePath(dir), JSON.stringify(state, null, 2) + '\n');
+  }
   return { written: name, path: filePath, overwrote };
 }
 
@@ -171,6 +176,67 @@ function listUnresolvedLinks(dir) {
     }
   }
   return { unresolved: [...byTarget.values()] };
+}
+
+function stateFilePath(dir) {
+  return path.join(path.dirname(dir), '.brain-state.json');
+}
+
+function snapshotBrain(dir) {
+  if (!fs.existsSync(dir)) return null;
+  const notes = {};
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith('.md')) continue;
+    notes[file.slice(0, -3)] = fs.statSync(path.join(dir, file)).mtimeMs;
+  }
+  return notes;
+}
+
+function readState(dir) {
+  try {
+    const state = JSON.parse(fs.readFileSync(stateFilePath(dir), 'utf8'));
+    return state && typeof state.notes === 'object' && state.notes !== null ? state : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeState(dir, notes) {
+  fs.writeFileSync(
+    stateFilePath(dir),
+    JSON.stringify({ notes, updatedAt: new Date().toISOString() }, null, 2) + '\n'
+  );
+}
+
+function diffBrainState(current, stateNotes) {
+  const changed = [];
+  for (const [name, mtime] of Object.entries(current)) {
+    if (!(name in stateNotes)) changed.push({ name, status: 'added' });
+    else if (stateNotes[name] !== mtime) changed.push({ name, status: 'modified' });
+  }
+  for (const name of Object.keys(stateNotes)) {
+    if (!(name in current)) changed.push({ name, status: 'deleted' });
+  }
+  return changed;
+}
+
+function listChangedNotes(dir, args) {
+  const acknowledge = !!(args && args.acknowledge);
+  const current = snapshotBrain(dir);
+  if (current === null) {
+    return { tracked: false, changed: [], acknowledged: false, note: 'no cadence/brain directory in this project' };
+  }
+  const state = readState(dir);
+  if (!state) {
+    if (acknowledge) {
+      writeState(dir, current);
+      return { tracked: true, changed: [], acknowledged: true, note: 'baseline created' };
+    }
+    return { tracked: false, changed: [], acknowledged: false, note: 'no baseline yet; call with acknowledge: true to start tracking' };
+  }
+  const changed = diffBrainState(current, state.notes);
+  if (acknowledge) writeState(dir, current);
+  return { tracked: true, changed, acknowledged: acknowledge };
 }
 
 function listTags(dir) {
@@ -249,6 +315,18 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: {} },
     handler: listTags,
   },
+  {
+    name: 'list_changed_notes',
+    description:
+      'Detect brain notes changed outside cadence (hand-edits in Obsidian) since the last acknowledged sync: added, modified, or deleted vs the tracked baseline in cadence/.brain-state.json. Pass acknowledge: true after reconciling to mark everything seen (first ever acknowledge creates the baseline). Hand-edited content is ground truth — read it before writing over it.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        acknowledge: { type: 'boolean', description: 'Snapshot the current brain as the new baseline after you have reconciled the changes' },
+      },
+    },
+    handler: listChangedNotes,
+  },
 ];
 
 const SERVER_INFO = { name: 'cadence-brain', version: '0.7.0' };
@@ -311,6 +389,10 @@ module.exports = {
   listOrphans,
   listUnresolvedLinks,
   listTags,
+  snapshotBrain,
+  readState,
+  diffBrainState,
+  listChangedNotes,
   handleMessage,
   TOOLS,
 };

@@ -19,6 +19,7 @@ const {
   listOrphans,
   listUnresolvedLinks,
   listTags,
+  listChangedNotes,
 } = require('./brain-mcp.js');
 
 function makeFixture() {
@@ -177,7 +178,7 @@ test('mcp server: initialize, tools/list, tools/call over stdio', async () => {
 
   assert.equal(responses[1].id, 2);
   const toolNames = responses[1].result.tools.map((t) => t.name).sort();
-  assert.deepEqual(toolNames, ['get_related', 'list_backlinks', 'list_orphans', 'list_tags', 'list_unresolved_links', 'read_note', 'search_notes', 'write_note']);
+  assert.deepEqual(toolNames, ['get_related', 'list_backlinks', 'list_changed_notes', 'list_orphans', 'list_tags', 'list_unresolved_links', 'read_note', 'search_notes', 'write_note']);
   assert.ok(responses[1].result.tools.every((t) => t.description && t.inputSchema));
 
   assert.equal(responses[2].id, 3);
@@ -211,4 +212,49 @@ test('listTags on a missing brain returns empty with a note', () => {
   const result = listTags(path.join(os.tmpdir(), 'nope-' + Date.now()), {});
   assert.deepEqual(result.tags, []);
   assert.match(result.note, /no cadence\/brain/);
+});
+
+test('listChangedNotes lifecycle: baseline, hand-edits, acknowledge', () => {
+  const { brain } = makeFixture();
+
+  const untracked = listChangedNotes(brain, {});
+  assert.equal(untracked.tracked, false);
+  assert.match(untracked.note, /acknowledge/);
+
+  const baseline = listChangedNotes(brain, { acknowledge: true });
+  assert.equal(baseline.tracked, true);
+  assert.deepEqual(baseline.changed, []);
+  assert.ok(fs.existsSync(path.join(brain, '..', '.brain-state.json')));
+
+  const clean = listChangedNotes(brain, {});
+  assert.equal(clean.tracked, true);
+  assert.deepEqual(clean.changed, []);
+
+  const edited = path.join(brain, 'api-auth.md');
+  const future = new Date(Date.now() + 5000);
+  fs.utimesSync(edited, future, future);
+  fs.writeFileSync(path.join(brain, 'hand-made.md'), '# Hand made\n');
+  fs.rmSync(path.join(brain, 'loose-note.md'));
+
+  const dirty = listChangedNotes(brain, {});
+  const byName = Object.fromEntries(dirty.changed.map((c) => [c.name, c.status]));
+  assert.deepEqual(byName, { 'api-auth': 'modified', 'hand-made': 'added', 'loose-note': 'deleted' });
+
+  const acked = listChangedNotes(brain, { acknowledge: true });
+  assert.equal(acked.changed.length, 3);
+  assert.deepEqual(listChangedNotes(brain, {}).changed, []);
+});
+
+test('write_note keeps the state in sync (no self-inflicted changes)', () => {
+  const { brain } = makeFixture();
+  listChangedNotes(brain, { acknowledge: true });
+  writeNote(brain, { name: 'from-mcp', content: '# From MCP\n' });
+  assert.deepEqual(listChangedNotes(brain, {}).changed, []);
+});
+
+test('listChangedNotes survives a corrupt state file', () => {
+  const { brain } = makeFixture();
+  fs.writeFileSync(path.join(brain, '..', '.brain-state.json'), 'not json');
+  const result = listChangedNotes(brain, {});
+  assert.equal(result.tracked, false);
 });
