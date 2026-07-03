@@ -251,7 +251,7 @@ const TOOLS = [
   },
 ];
 
-const SERVER_INFO = { name: 'cadence-brain', version: '0.6.0' };
+const SERVER_INFO = { name: 'cadence-brain', version: '0.7.0' };
 
 function handleMessage(msg, dir) {
   const hasId = msg.id !== undefined && msg.id !== null;

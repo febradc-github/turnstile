@@ -79,7 +79,9 @@ Cadence reads and writes a `cadence/` folder in your project repo:
 
 Run `/cadence:install-obsidian` once to install Obsidian (if needed) and
 configure `cadence/` as a vault, then open that folder in Obsidian to browse
-the brain notes as a linked graph.
+the brain notes as a linked graph. Brain notes use hierarchical tags
+(`api/auth`) and hub notes (`moc-<topic>.md`, Maps of Content) so the graph
+stays navigable as it grows; the brain-curator agent maintains both.
 
 Board files may be hand-edited; the validation hook (below) checks every
 write, and the skills surface parse errors instead of auto-repairing.
@@ -103,7 +105,8 @@ Run the hook tests with:
 
 The plugin ships a dependency-free MCP server (`scripts/brain-mcp.js`) exposing
 the brain as structured tools: `search_notes`, `read_note`, `write_note`,
-`list_backlinks`, `get_related`, `list_orphans`, `list_unresolved_links`.
+`list_backlinks`, `get_related`, `list_orphans`, `list_unresolved_links`,
+`list_tags`.
 It reads `<project>/cadence/brain/` per call, so results always reflect the
 files on disk. Registered via `.mcp.json`; agents without a `tools:`
 restriction (like `brain-curator`) can use these automatically.

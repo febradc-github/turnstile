@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0 — 2026-07-03
+
+- Richer brain note structure (third of the four Obsidian sub-projects):
+  hierarchical tags (`api/auth`, max two levels, reuse-over-synonyms),
+  optional `aliases` frontmatter, and Maps of Content — hub notes named
+  `moc-<topic>.md` with `type: moc` that the brain-curator creates once a
+  top-level tag reaches 5 notes and keeps linked thereafter. Existing notes
+  migrate opportunistically whenever the curator touches them.
+- New `list_tags` MCP tool: tag → count/notes aggregation that makes the
+  tag-reuse and MOC-threshold rules executable instead of aspirational.
+- Canvas files were evaluated and deliberately descoped: auto-generated
+  canvases need manual spatial layout to be worth anything, and Graph View
+  plus MOCs already cover the navigation value.
+
 ## 0.6.0 — 2026-07-03
 
 - Added the `cadence-brain` MCP server (`scripts/brain-mcp.js`), a
