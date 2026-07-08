@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.15.0 — 2026-07-08
+
+- Version bump only; no functional changes since 0.14.0.
+
 ## 0.14.0 — 2026-07-08
 
 - Hard rule: never read env files. `guard.js` now runs on every file and
