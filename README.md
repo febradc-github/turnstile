@@ -10,6 +10,16 @@ that survives across sessions.
 Node.js (any current LTS) must be on `PATH` — the plugin's hooks are small
 dependency-free Node scripts.
 
+## Install
+
+In Claude Code:
+
+1. Run `/plugin`.
+2. Choose **Marketplaces** -> **Add marketplace**.
+3. Paste the repo link: `https://github.com/febradc-github/cadence-ai`
+4. Back in the plugin menu, install **cadence** from the `cadence-ai`
+   marketplace.
+
 ## Install (local development)
 
     claude --plugin-dir ./cadence-plugin
