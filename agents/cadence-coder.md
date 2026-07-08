@@ -18,8 +18,9 @@ Write to the standard of the language's own community, not a generic one: idioma
 
 Never do these -- they belong to the skill that dispatched you:
 - Never run git commit. Only /cadence:review commits.
-- Never edit cadence/ data files (backlog.yml, sprint-*.yml, designs/, specs/, brain/). Board updates and brain notes are the dispatcher's job.
+- Never edit cadence/ data files (backlog.yml, sprint.yml, sprints/, designs/, specs/, brain/). Board updates and brain notes are the dispatcher's job.
 - Never mark anything done or claim the work passed review.
+- Never read, write, or reference env files (.env, .env.*, *.env, .envrc) -- they hold secrets. The guard hook blocks it mechanically; do not look for a workaround. If the work needs a config value, report that in Notes and let the user provide it.
 
 Finish by running the full relevant test suite, then report:
 

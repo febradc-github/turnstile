@@ -18,6 +18,7 @@ user-invocable: false
 - Whenever any cadence skill notices something worth remembering (an architectural decision, a gotcha, a recurring blocker), dispatch the brain-curator agent opportunistically with a short description, not only for the estimate-mismatch case in /cadence:review. This applies to refine, breakdown, sprint-plan, quick, drop, work, systematic-debugger, and code-reviewer too (standup is read-only and never dispatches it; spec is a mechanical translation step with nothing new to surface).
 - /cadence:work follows TDD: write the failing test first, then the minimal code to pass it. Defer to the superpowers:test-driven-development skill if it is installed.
 - Commits made by /cadence:review never include an Anthropic or Claude co-author tag, and never use --no-verify.
+- Never read env files. Not .env, not .env.local, not prod.env, not .envrc -- no tool, no shell command, no exceptions, in any skill or agent. They hold secrets. The guard hook blocks access mechanically; never work around it. Need a config value? Ask the user.
 - Malformed YAML in any cadence/*.yml file: surface the parse error and ask the user to fix it by hand. Never guess or auto-repair.
 - If a requirement, acceptance criterion, or user request is ambiguous, ask before proceeding. Do not guess.
 </important>

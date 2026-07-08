@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.0 — 2026-07-08
+
+- Hard rule: never read env files. `guard.js` now runs on every file and
+  shell tool (Read/Edit/Write/NotebookEdit/Grep/Glob/Bash/PowerShell) and
+  blocks any access to `.env`, `.env.*`, `*.env`, or `.envrc` -- by file
+  path, by glob, or by a shell command referencing one -- with exit 2, so
+  the attempt is stopped before it happens. Wildcards (`cat .env*`,
+  `**/*.env`) are caught; look-alikes (`environment.md`, `.venv/`,
+  `$NODE_ENV`, `env-check.test.js`) are not blocked. The rule is also
+  re-injected every turn by the reminder and stated in cadence-core and
+  cadence-coder: secrets are never read -- ask the user for config values.
+
 ## 0.13.0 — 2026-07-04
 
 - New `pitch-agent` (fourth cadence agent): anchoring-free idea pitches for
