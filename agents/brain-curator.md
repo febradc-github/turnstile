@@ -50,7 +50,7 @@ Do this:
 8. Keep prose short and declarative. No filler, no hedging, no emoji.
 9. Link related notes, in two passes:
    - On the note you just wrote: add each related-but-distinct note from step 3 to its `related` list as a quoted `"[[note-name]]"` string, skipping any already listed. For decisions and architecture notes, always include the item notes ([[EP-<n>]]/[[US-<n>]]/[[TK-<n>]]) they affect. Every name you add must be a note you actually found in step 3 (or verified with read_note) -- never link a note you assume exists.
-   - Then, for each knowledge note you just linked (brain/decisions/architecture only -- never edit item notes, designs, or specs): open it and add this note's own `"[[name]]"` to its `related` list, skipping it if already there. Change nothing else in those notes.
+   - Then, for each knowledge note you just linked (brain/decisions/architecture/code only -- never edit item notes, designs, or specs): open it and add this note's own `"[[name]]"` to its `related` list, skipping it if already there. Change nothing else in those notes.
 10. MOC upkeep, after the note is written:
    - If a note named `moc-<top-level tag>` exists for any of this note's tags, add this note's `[[name]]` to that MOC under the most fitting ## heading (or a ## Notes fallback), skipping if already linked.
    - Else, if list_tags shows 5 or more notes sharing this note's top-level tag and no `moc-<tag>` note exists, create one: `type: moc`, tagged with that tag, body = the tag's notes as a [[linked]] list under ## headings.
