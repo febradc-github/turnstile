@@ -76,7 +76,7 @@ Link safety: a wikilink to a file note targets the slug, never the path.
 path; `[[scripts/brain-mcp.js]]` is an unresolved click-trap that mints a
 stray note. External dependencies stay plain text, never linked.
 
-Format:
+Format (for code notes this body supersedes the generic body in step 5; the frontmatter fields are the same):
 
     ---
     type: file
@@ -84,7 +84,7 @@ Format:
     aliases: ["<repo-relative path>"]
     created: YYYY-MM-DD
     updated: YYYY-MM-DD
-    related: []                        # slugs of in-repo imports, callers, and the module's AR note
+    related: []                        # slugs of in-repo imports, callers, and the module's AR note when known
     sources: []
     ---
 
@@ -107,6 +107,11 @@ Format:
 
 Keep bodies short -- a map of the file, not a mirror of it.
 
+Steps 1, 9, 12, and 13 of the main procedure apply to code notes unchanged.
+Skip step 3 -- the read_note slug check above replaces the duplicate search --
+and step 6 -- the tag is derived from the path. Step 10 (MOC upkeep) runs as
+usual in opportunistic mode; in bulk mode leave it to the stitch dispatch.
+
 Two modes, set by the dispatch prompt:
 
 **Opportunistic (default).** The dispatcher just wrote or reviewed the code
@@ -117,13 +122,17 @@ read_note; everything else stays plain text.
 
 **Bulk (dispatched by cadence-brain-init only).** The prompt carries a batch
 of file paths, a linkable-slugs list (path -> slug for every file in the run
-plus every already-documented file), and names this mode. Per file, in order:
+plus every already-documented file), and names this mode. Batches contain
+only undocumented files. If read_note finds an existing note whose alias
+already carries this file's path, skip the file and report it -- never
+overwrite an existing code note in bulk mode. Per file, in order:
 1. Read the file.
 2. List its imports/includes/requires and its exported names (classes,
    functions, constants) by reading -- no parser, language-agnostic.
 3. Grep the repo for the file's basename and each exported name. Record a
-   caller only with a grep hit behind it -- never assert an unverified
-   connection.
+   caller only when the hit is a real import/require/include or a use of the
+   exported name -- not a comment or a coincidental substring. Never assert
+   an unverified connection.
 4. Write the note. In-repo connections whose target is on the linkable-slugs
    list become [[slug|path]] links; everything else stays plain text.
 5. Add those slugs (and the module's AR note if the prompt names one) to the
