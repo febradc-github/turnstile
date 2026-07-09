@@ -59,11 +59,15 @@ into per-directory architecture notes.
    cadence/architecture/AR-<dir>.md (root-level files: AR-root.md) with a
    ## Files section linking that directory's file notes in [[slug|path]]
    form (extend an existing AR note covering the area rather than creating
-   a parallel one); run its normal MOC upkeep; fix unresolved links
-   introduced by this run -- the prompt includes the slugs of the stale
-   notes deleted in step 6, and the curator runs list_backlinks on each to
-   remove dangling references from surviving notes; finish with
-   list_changed_notes acknowledge: true.
+   a parallel one); run MOC upkeep for the file notes written this run
+   (their shared top-level tag is code, so moc-code is created or extended
+   once 5 or more file notes exist); fix every unresolved link this run
+   introduced, including ones the batch dispatches left behind -- the
+   stitch prompt explicitly authorizes this, overriding step 12's
+   report-don't-fix default for links it didn't introduce -- the prompt
+   includes the slugs of the stale notes deleted in step 6, and the curator
+   runs list_backlinks on each to remove dangling references from surviving
+   notes; finish with list_changed_notes acknowledge: true.
 8. Report: notes written, AR notes created or extended, files skipped or
    failed, and that /cadence:obsidian-graph shows the result.
 

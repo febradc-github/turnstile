@@ -110,7 +110,10 @@ Keep bodies short -- a map of the file, not a mirror of it.
 Steps 1, 9, 12, and 13 of the main procedure apply to code notes unchanged.
 Skip step 3 -- the read_note slug check above replaces the duplicate search --
 and step 6 -- the tag is derived from the path. Step 10 (MOC upkeep) runs as
-usual in opportunistic mode; in bulk mode leave it to the stitch dispatch.
+usual in opportunistic mode; in bulk mode leave it to the stitch dispatch. One
+bulk-mode exception to step 12: leave unresolved targets that are on the
+dispatch prompt's linkable-slugs list alone -- the orchestrator guarantees
+those notes exist by the end of the run, and the stitch dispatch verifies them.
 
 Two modes, set by the dispatch prompt:
 
@@ -141,4 +144,6 @@ actually text, skip it and report it. Per file, in order:
    note's `related` list.
 In bulk mode, skip the bidirectional `related` back-edit for code notes
 written in the same run -- each side writes its own links from its own
-evidence, and the stitch pass reconciles leftovers.
+evidence. Asymmetric related lists between file notes are acceptable:
+Obsidian's backlinks pane surfaces the reverse direction, and the stitch
+dispatch fixes anything unresolved.

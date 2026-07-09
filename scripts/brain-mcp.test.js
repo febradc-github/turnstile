@@ -435,3 +435,22 @@ test('snapshotBrain tracks notes under code/', () => {
   const snap = snapshotBrain(vault);
   assert.equal('code/hooks-guard-js' in snap, true);
 });
+
+test('code notes are indexed by search and backlinks', () => {
+  const { vault } = makeFixture();
+  writeNote(vault, {
+    name: 'scripts-open-obsidian-js',
+    content:
+      '---\ntype: file\ntags: [code/scripts]\naliases: ["scripts/open-obsidian.js"]\ncreated: 2026-07-09\nupdated: 2026-07-09\nrelated: []\nsources: []\n---\n\n# scripts/open-obsidian.js\n\nOpens the vault in Obsidian. Imports [[scripts-brain-mcp-js|scripts/brain-mcp.js]].\n',
+    folder: 'code',
+  });
+
+  const byName = searchNotes(vault, { query: 'open-obsidian' });
+  assert.ok(byName.results.some((r) => r.name === 'scripts-open-obsidian-js' && r.folder === 'code'));
+  const byAlias = searchNotes(vault, { query: 'scripts/open-obsidian.js' });
+  assert.ok(byAlias.results.some((r) => r.name === 'scripts-open-obsidian-js' && r.folder === 'code'));
+
+  assert.deepEqual(listBacklinks(vault, { name: 'scripts-brain-mcp-js' }).backlinks, [
+    'scripts-open-obsidian-js',
+  ]);
+});
