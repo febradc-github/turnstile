@@ -189,10 +189,47 @@ Run its tests with:
 
     node --test scripts/brain-mcp.test.js scripts/open-obsidian.test.js
 
-## Design
+## Usage
 
-See `docs/superpowers/specs/2026-07-01-cadence-plugin-design.md` and
+The golden path through one ticket, gate by gate. `Cadence` writes to
+`cadence/` (the board and the vault) and dispatches agents for isolated
+work; `User` only ever talks to `Cadence`.
+
+    User                                    Cadence
+      |                                        |
+      |--- /cadence:brainstorm --------------->|
+      |                                        |  (dialogue only, no writes)
+      |<-------------- shaped idea ------------|
+      |                                        |
+      |--- /cadence:refine ------------------->|
+      |                                        |  [writes: design doc -> cadence/]
+      |<------------ approve design? ----------|
+      |--- approved -------------------------->|
+      |                                        |
+      |--- /cadence:spec --------------------->|
+      |                                        |  [writes: spec -> cadence/, status: ready]
+      |<------------- approve spec? -----------|
+      |--- approved -------------------------->|
+      |                                        |
+      |--- /cadence:sprint-plan -------------->|
+      |                                        |  [pulls ready items into sprint, status: todo]
+      |                                        |
+      |--- /cadence:work <id> ---------------->|
+      |                                        |  [status: in_progress]
+      |                                        |  [dispatch -> cadence-coder: TDD implementation]
+      |                                        |  [dispatch -> brain-curator: code/decision notes]
+      |<------- implemented, run review -------|
+      |                                        |
+      |--- /cadence:review <id> -------------->|
+      |                                        |  [dispatch -> cadence-reviewer: verify criteria vs diff]
+      |                                        |  [pass: status -> done, commit]
+      |<---------- reviewed & committed -------|
+
+`/cadence:conversate` collapses the left column to one message per turn --
+it classifies intent and drives the same sequence for you. Epic-sized ideas,
+`/cadence:quick`, and bug fixes take the side doors described in
+[Workflow](#workflow) but rejoin this same spec -> ready -> sprint -> review
+sequence. Full design rationale:
+`docs/superpowers/specs/2026-07-01-cadence-plugin-design.md` and
 `docs/superpowers/specs/2026-07-02-cadence-commands-conversate-design.md`
-in the originating repository for the full design rationale -- the first
-covers the original plugin, the second covers the commands layer,
-conversate, and the debugger/code-reviewer skills.
+in the originating repository.
