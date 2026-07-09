@@ -8,7 +8,7 @@ user-invocable: false
 
 <important>
 - Before starting new work, search the vault for notes related to the topic -- prefer the cadence-brain MCP tools (search_notes, get_related) over raw greps when available; they index every markdown note in cadence/. Surface what you find, including conflicting notes, before proceeding -- never silently pick a side.
-- Only the brain-curator agent writes or edits files in cadence/brain/, cadence/decisions/, and cadence/architecture/. Item notes, designs, and specs are written by their gated skills (refine, breakdown, spec). No other writes.
+- Only the brain-curator agent writes or edits files in cadence/brain/, cadence/decisions/, cadence/architecture/, and cadence/code/. Item notes, designs, and specs are written by their gated skills (refine, breakdown, spec). No other writes.
 - Status lives only in the YAML board (backlog.yml, sprint.yml, archived sprints). Notes never carry a status field -- a second copy would drift.
 - Obsidian resolves a [[wikilink]] by exact filename only. Aliases feed autocomplete and the quick switcher but never resolve a typed link. So: every [[wikilink]] written to any cadence note must name an existing file exactly (verify with read_note or search_notes first), and never write a board id as a link -- [[C-2]] does not resolve; the item note is [[US-2]] (or [[EP-2]]/[[TK-2]]). Write C-2 as plain text or link the typed name. An unresolved link is a click-trap that mints a stray note.
 - When a set of mutually-linked notes is created together (item note + design), finish all of them in the same pass and confirm nothing is left dangling (list_unresolved_links).
@@ -39,6 +39,7 @@ shared note format, so everything interconnects in Graph View:
       architecture/AR-<topic>.md   # how the system is shaped
       decisions/adr-<NNN>-<slug>.md# why it is shaped that way (ADRs)
       brain/<topic>.md, moc-*.md   # domain/process knowledge, MOCs
+      code/<path-slug>.md          # one note per source file (curator-written)
 
 Naming: `<n>` is the ticket's board number -- ticket `C-7` maps to `EP-7`,
 `US-7`, or `TK-7` (by type) plus `DS-7` and `SP-7`. One glance at a filename
@@ -51,7 +52,7 @@ link resolution requires. `<NNN>` is a zero-padded ADR sequence
 
     ---
     type: epic            # epic | story | task | design | spec |
-                          # architecture | decision | domain | process | moc
+                          # architecture | decision | domain | process | moc | file
     tags: [api/auth]      # hierarchical where a parent exists, max two levels
     aliases: []           # item notes: ["C-<n>", "<title>"] -- for search and
                           # autocomplete only; aliases never resolve raw links
@@ -92,6 +93,13 @@ Per-kind rules:
 - **Brain** (`type: domain|process|moc`): as before -- discovered knowledge,
   process learnings, and Maps of Content (`moc-<topic>.md`) once a top-level
   tag reaches 5 notes.
+- **Code files** (`type: file`, `code/<path-slug>.md`): one note per source
+  file -- purpose, exports, imports, callers. Named by the slugified
+  repo-relative path (`scripts/brain-mcp.js` -> `scripts-brain-mcp-js`);
+  the exact path is the note's only alias (never the bare basename).
+  Wikilinks to file notes target the slug -- `[[scripts-brain-mcp-js|scripts/brain-mcp.js]]`
+  -- never the path, which would not resolve. Written only by brain-curator:
+  opportunistically after work passes, in bulk by /cadence:brain-init.
 
 Linking is bidirectional by convention: when a note links to another, add the
 back-reference to the target's `related` list. Links point only at notes that
