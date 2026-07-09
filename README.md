@@ -229,7 +229,4 @@ work; `User` only ever talks to `Cadence`.
 it classifies intent and drives the same sequence for you. Epic-sized ideas,
 `/cadence:quick`, and bug fixes take the side doors described in
 [Workflow](#workflow) but rejoin this same spec -> ready -> sprint -> review
-sequence. Full design rationale:
-`docs/superpowers/specs/2026-07-01-cadence-plugin-design.md` and
-`docs/superpowers/specs/2026-07-02-cadence-commands-conversate-design.md`
-in the originating repository.
+sequence.
