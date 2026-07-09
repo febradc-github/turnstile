@@ -30,7 +30,7 @@ Finds and fixes the actual root cause of a bug ($ARGUMENTS), rather than patchin
    - **Unrelated (or nothing is in_progress), and this project has a cadence board:** do not fix it now under someone else's diff. Invoke the `cadence-quick` skill with the bug -- title, confirmed root cause, reproduction, intended fix approach, tagged `bug`, assignee `claude`. If an unrelated item is `in_progress`, the bug task queues right after it finishes (one item at a time). If nothing is `in_progress`, invoke the `cadence-work` skill with the new id so the fix happens now. Either way the fix ships through work -> review, reviewed and committed under its own ticket.
    - **No cadence board in this project:** ad hoc mode -- dispatch `cadence-coder` directly with the root cause and fix approach.
 7. Where the coder was dispatched here (related or ad hoc branch): verify the fix resolves the original reproduction case, and check for regressions in related behavior. (A queued bug task is verified later by its own work/review cycle.)
-8. If the root cause was non-obvious (would likely trip someone up again), dispatch the `brain-curator` agent with a short description of it.
+8. Dispatch the `brain-curator` agent when the fix changed code (include the touched files -- path, one-line purpose, what changed -- so their `cadence/code/` notes are updated) or the root cause was non-obvious (include a short description of it); one dispatch covers both.
 9. Tell the user what the root cause was and what happened to the fix: folded into the in_progress ticket, queued/fixed as ticket `<id>`, or applied ad hoc.
 
 ## Inputs
@@ -39,7 +39,7 @@ The vault's markdown notes, the codebase, `cadence/sprint.yml` (if any item is `
 
 ## Outputs
 
-Fixed code in the repo (related/ad hoc branch) or a tracked bug task via `cadence-quick` (unrelated branch), an updated `notes` field on the related in_progress item, a `brain-curator` dispatch on a non-obvious root cause.
+Fixed code in the repo (related/ad hoc branch) or a tracked bug task via `cadence-quick` (unrelated branch), an updated `notes` field on the related in_progress item, a `brain-curator` dispatch covering touched-file code notes and any non-obvious root cause.
 
 ## Error handling
 
