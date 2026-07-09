@@ -8,7 +8,7 @@ const readline = require('node:readline');
 // Folders the brain-curator owns and hand-edit tracking watches. The rest of
 // the vault (epics/, user-stories/, tasks/, designs/, specs/) is written by
 // gated skills and indexed read-only.
-const KNOWLEDGE_DIRS = ['brain', 'decisions', 'architecture'];
+const KNOWLEDGE_DIRS = ['brain', 'decisions', 'architecture', 'code'];
 
 function parseLinks(content) {
   const links = [];
@@ -398,13 +398,13 @@ const TOOLS = [
   {
     name: 'write_note',
     description:
-      'Create or overwrite a knowledge note in brain/ (default), decisions/, or architecture/. Follow the cadence-brain note format (frontmatter with type/tags/aliases/created/updated/related/sources, then a # Title). Read the existing note first when overwriting — this replaces the whole file, and an existing note is overwritten in its own folder regardless of the folder argument. Intended for the brain-curator agent; item notes, designs, and specs are written by their skills, not this tool.',
+      'Create or overwrite a knowledge note in brain/ (default), decisions/, architecture/, or code/. Follow the cadence-brain note format (frontmatter with type/tags/aliases/created/updated/related/sources, then a # Title). Read the existing note first when overwriting — this replaces the whole file, and an existing note is overwritten in its own folder regardless of the folder argument. Intended for the brain-curator agent; item notes, designs, and specs are written by their skills, not this tool.',
     inputSchema: {
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Note name without extension' },
         content: { type: 'string', description: 'Full markdown content including frontmatter' },
-        folder: { type: 'string', description: 'Target folder for a new note: brain (default), decisions, or architecture' },
+        folder: { type: 'string', description: 'Target folder for a new note: brain (default), decisions, architecture, or code' },
       },
       required: ['name', 'content'],
     },

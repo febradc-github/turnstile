@@ -22,6 +22,8 @@ const {
   listStrayNotes,
   listTags,
   listChangedNotes,
+  KNOWLEDGE_DIRS,
+  snapshotBrain,
 } = require('./brain-mcp.js');
 
 function makeFixture() {
@@ -405,4 +407,31 @@ test('listChangedNotes survives a corrupt state file', () => {
   fs.writeFileSync(path.join(vault, '.brain-state.json'), 'not json');
   const result = listChangedNotes(vault, {});
   assert.equal(result.tracked, false);
+});
+
+test('KNOWLEDGE_DIRS includes code', () => {
+  assert.deepEqual(KNOWLEDGE_DIRS, ['brain', 'decisions', 'architecture', 'code']);
+});
+
+test('writeNote accepts folder: code and creates the note there', () => {
+  const { vault } = makeFixture();
+  const res = writeNote(vault, {
+    name: 'scripts-brain-mcp-js',
+    content:
+      '---\ntype: file\ntags: [code/scripts]\naliases: ["scripts/brain-mcp.js"]\ncreated: 2026-07-09\nupdated: 2026-07-09\nrelated: []\nsources: []\n---\n\n# scripts/brain-mcp.js\n\nMCP server.\n',
+    folder: 'code',
+  });
+  assert.equal(res.folder, 'code');
+  assert.equal(fs.existsSync(path.join(vault, 'code', 'scripts-brain-mcp-js.md')), true);
+});
+
+test('snapshotBrain tracks notes under code/', () => {
+  const { vault } = makeFixture();
+  fs.mkdirSync(path.join(vault, 'code'), { recursive: true });
+  fs.writeFileSync(
+    path.join(vault, 'code', 'hooks-guard-js.md'),
+    '---\ntype: file\naliases: ["hooks/guard.js"]\n---\n\n# hooks/guard.js\n'
+  );
+  const snap = snapshotBrain(vault);
+  assert.equal('code/hooks-guard-js' in snap, true);
 });
