@@ -384,7 +384,7 @@ const TOOLS = [
   {
     name: 'search_notes',
     description:
-      'Search every markdown note in the cadence/ vault (brain, decisions, architecture, epics, user-stories, tasks, designs, specs) by name, alias, tag, and content (case-insensitive substring). Returns matching notes with folder and up to 5 matching lines each. Use this before starting new work to find prior knowledge.',
+      'Search every markdown note in the cadence/ vault (brain, decisions, architecture, code, epics, user-stories, tasks, designs, specs) by name, alias, tag, and content (case-insensitive substring). Returns matching notes with folder and up to 5 matching lines each. Use this before starting new work to find prior knowledge.',
     inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'Substring to search for' } }, required: ['query'] },
     handler: searchNotes,
   },
@@ -453,7 +453,7 @@ const TOOLS = [
   {
     name: 'list_changed_notes',
     description:
-      'Detect knowledge notes (brain/, decisions/, architecture/) changed outside cadence (hand-edits in Obsidian) since the last acknowledged sync: added, modified, or deleted vs the tracked baseline in cadence/.brain-state.json. Pass acknowledge: true after reconciling to mark everything seen (first ever acknowledge creates the baseline). Hand-edited content is ground truth — read it before writing over it.',
+      'Detect knowledge notes (brain/, decisions/, architecture/, code/) changed outside cadence (hand-edits in Obsidian) since the last acknowledged sync: added, modified, or deleted vs the tracked baseline in cadence/.brain-state.json. Pass acknowledge: true after reconciling to mark everything seen (first ever acknowledge creates the baseline). Hand-edited content is ground truth — read it before writing over it.',
     inputSchema: {
       type: 'object',
       properties: {
