@@ -125,7 +125,8 @@ of file paths, a linkable-slugs list (path -> slug for every file in the run
 plus every already-documented file), and names this mode. Batches contain
 only undocumented files. If read_note finds an existing note whose alias
 already carries this file's path, skip the file and report it -- never
-overwrite an existing code note in bulk mode. Per file, in order:
+overwrite an existing code note in bulk mode. If a file is unreadable or not
+actually text, skip it and report it. Per file, in order:
 1. Read the file.
 2. List its imports/includes/requires and its exported names (classes,
    functions, constants) by reading -- no parser, language-agnostic.

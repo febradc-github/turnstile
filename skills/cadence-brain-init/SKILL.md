@@ -34,29 +34,35 @@ into per-directory architecture notes.
      .vue .svelte .lua .r .scala .ex .exs
    - Always exclude: cadence/, node_modules/, vendor/, dist/, build/,
      .git/, lockfiles, minified files (*.min.*), generated files.
-3. List existing code notes and their path aliases (read the cadence/code/
-   folder; each note's alias is its file's repo-relative path). Drop every
-   file whose path matches an existing alias. Slugify each remaining path
-   (lowercase; every run of characters outside a-z0-9 becomes one `-`,
-   trimmed at both ends; on collision with a different path's note, append
-   -2, -3, ...) to build the run's path -> slug map.
-4. Stale cleanup: every code note whose aliased path no longer exists in
-   the repo -- report the list to the user, then delete those note files.
-5. Report the plan -- N files to document in M batches, K skipped as
-   already documented, S stale notes removed -- and confirm once with the
-   user before dispatching.
-6. Batch by top-level directory, about 15 files per batch (split large
-   directories, merge tiny ones). Dispatch the brain-curator agent once per
-   batch, in parallel, with model: sonnet. Each dispatch prompt carries:
-   the batch's file paths with their slugs, the full linkable-slugs list
-   (every path -> slug in this run plus every existing code note), and the
-   statement that this is bulk code documentation mode.
+3. List existing code notes and their path aliases -- grep the `aliases:`
+   frontmatter line of each note in cadence/code/ rather than reading
+   whole notes; a missing code/ folder just means no existing notes. Drop
+   every file whose path matches an existing alias. Build one path -> slug
+   map across ALL remaining files at once (lowercase; every run of
+   characters outside a-z0-9 becomes one `-`, trimmed at both ends).
+   Resolve collisions -- against existing notes AND between new files --
+   by appending -2, -3, ... in path-sorted order.
+4. Identify stale notes: every code note whose aliased path no longer
+   exists in the repo. Do not delete anything yet.
+5. Plan the batches: group by top-level directory, about 15 files per
+   batch (split large directories, merge tiny ones).
+6. Report the plan -- N files to document in M batches, K skipped as
+   already documented, S stale notes to remove -- and confirm once with
+   the user (AskUserQuestion). After confirmation: delete the stale note
+   files, then dispatch the brain-curator agent once per batch with
+   model: sonnet, at most 4 dispatches in flight at a time. Each dispatch
+   prompt carries: the batch's file paths with their slugs, the full
+   linkable-slugs list (every path -> slug in this run plus every existing
+   code note), and the statement that this is bulk code documentation mode.
 7. After all batches return, dispatch brain-curator once more (default
    model) to stitch: for each top-level source directory, create or extend
-   cadence/architecture/AR-<dir>.md with a ## Files section linking that
-   directory's file notes in [[slug|path]] form (extend an existing AR note
-   covering the area rather than creating a parallel one); run its normal
-   MOC upkeep; fix unresolved links introduced by this run; finish with
+   cadence/architecture/AR-<dir>.md (root-level files: AR-root.md) with a
+   ## Files section linking that directory's file notes in [[slug|path]]
+   form (extend an existing AR note covering the area rather than creating
+   a parallel one); run its normal MOC upkeep; fix unresolved links
+   introduced by this run -- the prompt includes the slugs of the stale
+   notes deleted in step 6, and the curator runs list_backlinks on each to
+   remove dangling references from surviving notes; finish with
    list_changed_notes acknowledge: true.
 8. Report: notes written, AR notes created or extended, files skipped or
    failed, and that /cadence:obsidian-graph shows the result.
