@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.17.0 — 2026-07-13
+
+- `cadence-conversate` now checks `cadence/code/` before answering an ad-hoc
+  "what does this code do" question: read the note, then read the source
+  file its alias points to, and answer from the file if the two have
+  drifted apart. On drift, conversate dispatches `brain-curator`
+  (opportunistic, single file) to correct the note -- it never edits a
+  `cadence/code/` note itself. Missing notes fall back to Grep/Read as
+  before; conversate never backfills coverage, that stays `/cadence:brain-init`'s job.
+
 ## 0.16.1 — 2026-07-10
 
 - README: replaced the `Design` section (links only) with a `Usage` section

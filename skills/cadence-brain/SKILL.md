@@ -99,7 +99,13 @@ Per-kind rules:
   the exact path is the note's only alias (never the bare basename).
   Wikilinks to file notes target the slug -- `[[scripts-brain-mcp-js|scripts/brain-mcp.js]]`
   -- never the path, which would not resolve. Written only by brain-curator:
-  opportunistically after work passes, in bulk by /cadence:brain-init.
+  opportunistically after work passes, in bulk by /cadence:brain-init. A note
+  is a map, not a mirror -- it can drift from the file it describes. Anyone
+  answering a question from a code note (cadence-conversate does this for
+  ad-hoc "what does X do" questions) reads the tagged source file to verify
+  before trusting the note; source wins on a mismatch, and brain-curator is
+  dispatched opportunistically to correct the note -- the note is never
+  edited inline by whatever consumed it.
 
 Linking is bidirectional by convention: when a note links to another, add the
 back-reference to the target's `related` list. Links point only at notes that
