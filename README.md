@@ -17,8 +17,8 @@ In Claude Code:
 
 1. Run `/plugin`.
 2. Choose **Marketplaces** -> **Add marketplace**.
-3. Paste the repo link: `https://github.com/febradc-github/cadence-ai`
-4. Back in the plugin menu, install **turnstile** from the `cadence-ai`
+3. Paste the repo link: `https://github.com/febradc-github/turnstile`
+4. Back in the plugin menu, install **turnstile** from the `turnstile`
    marketplace.
 
 ## Install (local development)
