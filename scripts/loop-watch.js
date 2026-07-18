@@ -60,40 +60,62 @@ function buildHtml(state, nodeLabels) {
 
   const activePhase = state.phase || null;
 
-  // Map label -> position: top, right, bottom, left
+  // Corner positions: top-left, top-right, bottom-right, bottom-left
   const positions = [
-    { label: labels[0], pos: 'top',    x: '50%',  y: '8%'  },
-    { label: labels[1], pos: 'right',  x: '88%',  y: '50%' },
-    { label: labels[2], pos: 'bottom', x: '50%',  y: '92%' },
-    { label: labels[3], pos: 'left',   x: '12%',  y: '50%' },
+    { label: labels[0], x: '18%', y: '18%' },
+    { label: labels[1], x: '82%', y: '18%' },
+    { label: labels[2], x: '82%', y: '82%' },
+    { label: labels[3], x: '18%', y: '82%' },
   ];
 
   // Build node cards HTML
-  const nodesHtml = positions.map(({ label, x, y }) => {
+  const nodesHtml = positions.map(({ label, x, y }, i) => {
     const isActive = label === activePhase;
     const cardStyle = isActive
-      ? 'border: 2px solid #00ffff; box-shadow: 0 0 12px #00ffff44; position: relative;'
-      : 'border: 1px solid #1e2a3a; position: relative;';
+      ? `left: ${x}; top: ${y}; border: 2px solid #00ffff; box-shadow: 0 0 12px #00ffff44; position: relative;`
+      : `left: ${x}; top: ${y}; border: 1px solid #1e2a3a; position: relative;`;
     const dotHtml = isActive
       ? '<span class="status-dot" aria-label="active"></span>'
       : '';
+    const subtitle = state.config && state.config.nodeSubtitles && state.config.nodeSubtitles[i]
+      ? `<span class="node-subtitle">${escapeHtml(state.config.nodeSubtitles[i])}</span>`
+      : '';
     return `
       <div class="node${isActive ? ' node--active' : ''}" data-label="${escapeHtml(label)}"
-           style="left: calc(${x} - 60px); top: calc(${y} - 30px); ${cardStyle}">
+           style="${cardStyle}">
         ${dotHtml}
-        <span class="node-label">${escapeHtml(label)}</span>
+        <span class="node-label">${escapeHtml(label)}</span>${subtitle}
       </div>`;
   }).join('\n');
 
+  // Four trace lines connecting adjacent corner nodes
+  const tracesHtml = `
+  <div class="trace" style="top: 18%; left: 18%; width: 64%; height: 1px;"></div>
+  <div class="trace" style="left: 82%; top: 18%; width: 1px; height: 64%;"></div>
+  <div class="trace" style="top: 82%; left: 18%; width: 64%; height: 1px;"></div>
+  <div class="trace" style="left: 18%; top: 18%; width: 1px; height: 64%;"></div>`;
+
+  // Demo log lines (shown when no DECIDE history)
+  const demoLogHtml = `<div class="log-wrap"><div class="log-scroll">
+  <div class="log-entry">&gt; planning next action... <span class="log-highlight">done</span></div>
+  <div class="log-entry">&gt; running tool call... <span class="log-highlight">200 OK</span></div>
+  <div class="log-entry">&gt; evaluating result... <span class="log-highlight">continue</span></div>
+  <div class="log-entry">&gt; deciding next phase... <span class="log-highlight">ACT</span></div>
+  <div class="log-entry">&gt; planning next action... <span class="log-highlight">done</span></div>
+  <div class="log-entry">&gt; running tool call... <span class="log-highlight">200 OK</span></div>
+  <div class="log-entry">&gt; evaluating result... <span class="log-highlight">continue</span></div>
+  <div class="log-entry">&gt; deciding next phase... <span class="log-highlight">ACT</span></div>
+</div></div>`;
+
   // Build terminal log entries HTML (DECIDE phase only, per spec)
-  const logEntries = (state.history || [])
-    .filter((e) => e.phase === 'DECIDE')
-    .map((e) => {
-      const obs = escapeHtml(e.observation || '—');
-      const dec = escapeHtml(e.decision || '—');
-      return `<div class="log-entry">[iter ${e.iteration} · DECIDE] ${dec}: ${obs}</div>`;
-    })
-    .join('\n');
+  const decides = (state.history || []).filter((e) => e.phase === 'DECIDE');
+  const logEntries = decides.length > 0
+    ? decides.map((e) => {
+        const obs = escapeHtml(e.observation || '—');
+        const dec = escapeHtml(e.decision || '—');
+        return `<div class="log-entry">[iter ${e.iteration} · DECIDE] <span class="log-highlight">${dec}</span>: ${obs}</div>`;
+      }).join('\n')
+    : null;
 
   const statusText = escapeHtml(state.status || 'unknown');
   const idText = escapeHtml(state.id || '');
@@ -143,19 +165,33 @@ function buildHtml(state, nodeLabels) {
   /* --- Node cards --- */
   .node {
     position: absolute;
-    width: 120px;
-    height: 60px;
+    width: min(120px, 24vw);
+    height: min(60px, 12vw);
     background: #0d1321;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+    transform: translate(-50%, -50%);
   }
 
   .node-label {
     font-size: 0.85rem;
     letter-spacing: 0.06em;
     color: #c0c8d8;
+  }
+
+  .node-subtitle {
+    font-size: 0.7rem;
+    color: #4a5568;
+  }
+
+  /* --- Circuit trace lines --- */
+  .trace {
+    position: absolute;
+    background: #1e2a3a;
   }
 
   /* Status dot (top-right corner of active node) */
@@ -201,8 +237,8 @@ function buildHtml(state, nodeLabels) {
     background: #050810;
     border: 1px solid #1e2a3a;
     border-radius: 4px;
-    max-height: 200px;
-    overflow-y: auto;
+    height: 64px;
+    overflow: hidden;
     padding: 8px 12px;
   }
 
@@ -220,19 +256,37 @@ function buildHtml(state, nodeLabels) {
     font-style: italic;
   }
 
+  .log-highlight {
+    color: #00ffff;
+  }
+
+  .log-wrap {
+    overflow: hidden;
+    height: 64px;
+  }
+
+  @keyframes scroll-up {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+
+  .log-scroll {
+    animation: scroll-up 8s linear infinite;
+  }
+
   /* --- Reduced-motion: no animation, no glow --- */
   @media (prefers-reduced-motion: no-preference) {
-    /* Pulse travels: ACT (top) → OBSERVE (right) → EVALUATE (bottom) → DECIDE (left) → ACT */
+    /* Pulse travels clockwise: top-left → top-right → bottom-right → bottom-left → top-left */
     @keyframes circuit-pulse {
-      0%   { top:  8%;  left: 50%; }
-      25%  { top: 50%;  left: 88%; }
-      50%  { top: 92%;  left: 50%; }
-      75%  { top: 50%;  left: 12%; }
-      100% { top:  8%;  left: 50%; }
+      0%   { top: 18%; left: 18%; }
+      25%  { top: 18%; left: 82%; }
+      50%  { top: 82%; left: 82%; }
+      75%  { top: 82%; left: 18%; }
+      100% { top: 18%; left: 18%; }
     }
 
     .pulse {
-      animation: circuit-pulse 4s linear infinite;
+      animation: circuit-pulse 6s linear infinite;
     }
 
     .node--active {
@@ -266,6 +320,7 @@ function buildHtml(state, nodeLabels) {
 
 <div class="circuit" id="circuit">
   ${nodesHtml}
+  ${tracesHtml}
 
   <div class="feedback-label">feedback → next cycle</div>
 
@@ -275,7 +330,7 @@ function buildHtml(state, nodeLabels) {
 <div class="terminal-log" id="log">
   ${logEntries
     ? logEntries
-    : '<div class="log-empty">awaiting loop iterations…</div>'}
+    : demoLogHtml}
 </div>
 
 <script>
@@ -283,17 +338,10 @@ function buildHtml(state, nodeLabels) {
   (function () {
     var labels = ${JSON.stringify(labels)};
 
-    function positionForLabel(label) {
-      var positions = {
-        [labels[0]]: { x: '50%',  y: '8%'  },
-        [labels[1]]: { x: '88%', y: '50%' },
-        [labels[2]]: { x: '50%',  y: '92%' },
-        [labels[3]]: { x: '12%',  y: '50%' },
-      };
-      return positions[label] || null;
-    }
-
     function applyState(state) {
+      // Clear demo cycle if it was running and a real phase has arrived
+      if (demoCycle && state.phase) { clearInterval(demoCycle); demoCycle = null; }
+
       // Update status / phase text
       document.getElementById('status').textContent = state.status || 'unknown';
       document.getElementById('phase').textContent = state.phase || '—';
@@ -327,13 +375,22 @@ function buildHtml(state, nodeLabels) {
       var log = document.getElementById('log');
       var decides = (state.history || []).filter(function (e) { return e.phase === 'DECIDE'; });
       if (decides.length === 0) {
-        log.innerHTML = '<div class="log-empty">awaiting loop iterations…</div>';
+        log.innerHTML = '<div class="log-wrap"><div class="log-scroll">' +
+          '<div class="log-entry">&gt; planning next action... <span class="log-highlight">done</span></div>' +
+          '<div class="log-entry">&gt; running tool call... <span class="log-highlight">200 OK</span></div>' +
+          '<div class="log-entry">&gt; evaluating result... <span class="log-highlight">continue</span></div>' +
+          '<div class="log-entry">&gt; deciding next phase... <span class="log-highlight">ACT</span></div>' +
+          '<div class="log-entry">&gt; planning next action... <span class="log-highlight">done</span></div>' +
+          '<div class="log-entry">&gt; running tool call... <span class="log-highlight">200 OK</span></div>' +
+          '<div class="log-entry">&gt; evaluating result... <span class="log-highlight">continue</span></div>' +
+          '<div class="log-entry">&gt; deciding next phase... <span class="log-highlight">ACT</span></div>' +
+          '</div></div>';
       } else {
         log.innerHTML = decides.map(function (e) {
           var obs = (e.observation || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
           var dec = (e.decision || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return '<div class="log-entry">[iter ' + e.iteration + ' \xB7 DECIDE] ' + dec + ': ' + obs + '</div>';
-        }).join('\\n');
+          return '<div class="log-entry">[iter ' + e.iteration + ' \xB7 DECIDE] <span class="log-highlight">' + dec + '</span>: ' + obs + '</div>';
+        }).join('\n');
         // Auto-scroll to bottom
         log.scrollTop = log.scrollHeight;
       }
@@ -342,6 +399,21 @@ function buildHtml(state, nodeLabels) {
       return state.status === 'success' ||
              state.status === 'max_iterations_reached' ||
              state.status === 'error';
+    }
+
+    var demoCycle = null;
+    if (!${JSON.stringify(activePhase)}) {
+      var demoIdx = 0;
+      demoCycle = setInterval(function () {
+        var nodes = document.querySelectorAll('.node');
+        nodes.forEach(function (n, i) {
+          var active = i === demoIdx;
+          n.classList.toggle('node--active', active);
+          n.style.border = active ? '2px solid #00ffff' : '1px solid #1e2a3a';
+        });
+        document.getElementById('phase').textContent = labels[demoIdx];
+        demoIdx = (demoIdx + 1) % labels.length;
+      }, 1500);
     }
 
     var pollTimer;
