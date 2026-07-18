@@ -23,7 +23,7 @@ In Claude Code:
 
 ## Install (local development)
 
-    claude --plugin-dir ./turnstile-plugin
+    claude --plugin-dir ./turnstile
 
 ## Commands vs. skills
 
