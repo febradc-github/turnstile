@@ -27,10 +27,21 @@ user-invocable: false
 6. Read the ticket's spec -- `cadence/specs/SP-<n>.md` (`<n>` from `<id>` = `C-<n>`), falling back to legacy names (`cadence/specs/<id>-*-spec.md`, `cadence/specs/<id>.md`). No spec file means a quick-lane item: its criteria live in the item note's "## Acceptance criteria" section. If the item has a `parent`, also read the parent chain's design docs (`DS-<parent n>`, or legacy names) -- the umbrella rationale often settles questions the leaf spec doesn't repeat.
 7. Set `status: in_progress` if it was `todo` -- before writing any code, so an interrupted session still leaves the board accurate.
 8. If any acceptance criterion is UI-facing, defer to `frontend-design` (if installed) for that portion.
-9. Implement by dispatching `cadence-coder` with the acceptance criteria, the relevant brain notes from step 5, pointers to affected files, and any decisions gathered from the user. It works test-first and reports files changed, test results, and notes. Dispatch it for every change, no matter how small. If questions surface mid-implementation, resolve them with the user and re-dispatch; never finish the code yourself.
-10. Append to the item's `notes`: `work pass <n>: <one-line summary>`, `<n>` = prior "work pass" entries + 1.
-11. Dispatch `brain-curator` with: the source files this pass created or changed (path, one-line purpose, exports, known imports/callers -- from the coder's report) so their `cadence/code/` notes are updated, plus anything worth remembering (a decision, a gotcha, anything the coder flagged under Notes). Fires whenever code changed; skipped only when nothing was implemented.
-12. Tell the user what was implemented and that `/cadence:review <id>` is next.
+9. Ask the user:
+
+   > Run this in loop mode?
+   > [y] autonomous -- iterations run uninterrupted until done
+   > [n] manual -- you confirm each DECIDE before the loop advances
+
+   Wait for a reply. Accept `y`/`yes`/`Y` as **autonomous** and `n`/`no`/`N` as **manual**. Any other input: re-ask once, then default to manual.
+
+   - If **y (loop mode)**: derive the loop goal from the ticket title and the first acceptance criterion; derive the success condition from the spec's done definition (or "all acceptance criteria pass and tests are green" if none is stated). Invoke the `cadence-loop-start` skill with `goal="<derived goal>" success="<derived success>" max-iterations=<N>` where N defaults to 10 unless the ticket's spec states otherwise. Skip step 10 -- the loop handles implementation. Continue from step 11 (notes) once the loop terminates.
+   - If **n (no loop)**: proceed to step 10 with the normal `cadence-coder` dispatch.
+
+10. Implement by dispatching `cadence-coder` with the acceptance criteria, the relevant brain notes from step 5, pointers to affected files, and any decisions gathered from the user. It works test-first and reports files changed, test results, and notes. Dispatch it for every change, no matter how small. If questions surface mid-implementation, resolve them with the user and re-dispatch; never finish the code yourself.
+11. Append to the item's `notes`: `work pass <n>: <one-line summary>`, `<n>` = prior "work pass" entries + 1.
+12. Dispatch `brain-curator` with: the source files this pass created or changed (path, one-line purpose, exports, known imports/callers -- from the coder's report) so their `cadence/code/` notes are updated, plus anything worth remembering (a decision, a gotcha, anything the coder flagged under Notes). Fires whenever code changed; skipped only when nothing was implemented.
+13. Tell the user what was implemented and that `/cadence:review <id>` is next.
 
 ## Error handling
 
