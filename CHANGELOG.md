@@ -27,6 +27,11 @@
   offers to archive a leftover sprint (the required step before the
   switch takes effect), and points to `/turnstile:next`.
   `validate-board.js` validates the `mode` header (`sprint`/`flow`).
+- The brain is lazy by default: `turnstile/code/` notes are created or
+  updated only for files a ticket touched, at the moment the ticket
+  passes review. `/turnstile:brain-init` becomes an explicit opt-in with
+  a vault-size and staleness warning before anything is scanned — empty
+  brain beats stale brain.
 
 ## 0.21.0 — 2026-07-18
 

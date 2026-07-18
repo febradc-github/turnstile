@@ -1,5 +1,5 @@
 ---
-description: Documents every undocumented source file in the repository as a linked note in turnstile/code/ -- purpose, imports, exports, and callers -- via parallel brain-curator dispatches.
+description: Opt-in bulk mode: documents every undocumented source file as a linked note in turnstile/code/ after an explicit size/staleness warning. The default is lazy -- code notes are written for ticket-touched files when the ticket passes review.
 disable-model-invocation: true
 ---
 

@@ -70,7 +70,7 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/turnstile:code-reviewer [scope]` | Advisory code/diff review. Ad hoc, not gated, never commits. |
 | `/turnstile:install-obsidian` | One-time setup: installs Obsidian via the OS package manager (with confirmation) and scaffolds `turnstile/.obsidian/` as a working vault. Idempotent. |
 | `/turnstile:obsidian-graph` | Opens `turnstile/` in Obsidian and points you at Graph View (Ctrl+G / Cmd+G). |
-| `/turnstile:brain-init` | Bulk-documents every source file as a linked `turnstile/code/` note (purpose, imports, exports, callers). Re-runnable; only adds missing notes. |
+| `/turnstile:brain-init` | Opt-in bulk mode: documents every source file as a linked `turnstile/code/` note after an explicit size/staleness warning. The default is lazy -- notes are written for ticket-touched files at review. Re-runnable; only adds missing notes. |
 
 ## Loop runner
 
@@ -215,10 +215,13 @@ Run `/turnstile:install-obsidian` once to install Obsidian (if needed) and
 configure `turnstile/` as a vault, then open that folder in Obsidian to browse
 everything as a linked graph. Notes use hierarchical tags (`api/auth`) and
 hub notes (`moc-<topic>.md`, Maps of Content) so the graph stays navigable as
-it grows; the brain-curator agent maintains both. `/turnstile:brain-init`
-bootstraps `turnstile/code/` -- one note per source file with its imports,
-exports, and callers -- and work sessions keep those notes current through
-the same brain-curator dispatches.
+it grows; the brain-curator agent maintains both. `turnstile/code/` notes
+are lazy by default: a file gets (or refreshes) its note when a ticket that
+touched it passes review, so coverage tracks what actually changes and an
+empty brain beats a stale one. `/turnstile:brain-init` is the opt-in eager
+alternative -- it bulk-documents every source file after an explicit
+warning that the vault grows with the repo and untouched files' notes
+start aging immediately.
 
 Board files may be hand-edited; the validation hook (below) checks every
 write, and the skills surface parse errors instead of auto-repairing.

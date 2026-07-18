@@ -1,12 +1,13 @@
 ---
 name: turnstile-brain-init
-description: Bulk-bootstraps turnstile/code/ -- one linked note per source file. Dispatched by /turnstile:brain-init only.
+description: Opt-in bulk bootstrap of turnstile/code/ -- one linked note per source file. The default pipeline is lazy (code notes only for ticket-touched files, written when the ticket passes review); this is the eager exception. Dispatched by /turnstile:brain-init only.
 user-invocable: false
 ---
 
 # Brain Init
 
 <important>
+- Bulk documentation is opt-in, never assumed. Before scanning anything, warn the user explicitly: this documents every source file, which grows the vault in proportion to the repo and every note starts aging immediately -- notes for files no ticket touches are never refreshed, and an empty brain beats a stale one. The default lazy path (code notes created or updated for a ticket's touched files when it passes review) needs no bootstrap. Ask for confirmation (AskUserQuestion) and stop on anything but an explicit yes.
 - This skill orchestrates only -- it never writes notes itself. Every note is written by a brain-curator dispatch.
 - Bulk batch dispatches override the curator's model to sonnet (the Agent tool's model parameter); the final stitch dispatch uses the curator's default model.
 - Reruns are additive: files that already have a code note are skipped. Keeping notes current for changed files is the opportunistic curator path during normal work, not this command.
@@ -16,6 +17,7 @@ user-invocable: false
 
 ## Process
 
+0. Deliver the vault-size and staleness warning above and get the explicit opt-in confirmation. Declined: point at the lazy default (review keeps touched files' notes current) and stop.
 1. Verify the turnstile-brain MCP tools respond (any search_notes call). Unavailable: tell the user to reload the session so .mcp.json registers the server, and stop. No turnstile/ directory: create nothing; suggest running a cadence command (or /turnstile:install-obsidian) first, and stop.
 2. Build the source file list:
    - In a git repo: `git ls-files` (respects .gitignore). Otherwise: a Glob sweep.
