@@ -16,6 +16,9 @@
   `/turnstile:review` resolves criteria per ticket (SP → PL → item note),
   so switching profile mid-project is safe and mixed artifacts coexist.
   The review gate is unchanged in both profiles.
+- `/turnstile:quick` ceiling raised from 2 to 3 points and made
+  configurable (`quick_max_points`). The `added_mid_sprint` honesty flag
+  is unchanged.
 
 ## 0.21.0 — 2026-07-18
 

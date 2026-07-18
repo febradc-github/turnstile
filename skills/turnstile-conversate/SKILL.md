@@ -20,7 +20,7 @@ user-invocable: false
 2. Match the user's request ($ARGUMENTS plus their message) against these cases, in order:
    - **Status, progress, or "what's on the board":** answer directly from the snapshot (same content as `/turnstile:board` or `/turnstile:standup`, whichever fits). No skill invocation.
    - **What a piece of code does / how something is implemented:** check `turnstile/code/` via `search_notes`/`read_note`. If a note exists, read the source file at its `aliases` path and compare. Still matching: answer directly, citing the verified file. Drifted: answer from the file -- source is truth -- and dispatch `brain-curator` (opportunistic mode, this one file, with the purpose/exports/imports/callers you observed) to correct the note. No note: answer via Grep/Read as usual -- do not dispatch brain-curator just to backfill missing coverage; that's `/turnstile:brain-init`'s job. No skill invocation.
-   - **A brand-new idea not on the board:** invoke `turnstile-brainstorm` with the description. Exception: clearly trivial work (a typo, a tiny chore, ~2 points or less with no design question) goes to `turnstile-quick` instead.
+   - **A brand-new idea not on the board:** invoke `turnstile-brainstorm` with the description. Exception: clearly trivial work (a typo, a tiny chore, within the quick ceiling -- quick_max_points, default 3 -- with no design question) goes to `turnstile-quick` instead.
    - **Something broken (an error, failing test, unexpected behavior):** invoke `turnstile-systematic-debugger` with the report. It diagnoses first, then routes the fix.
    - **Cancel, kill, or drop an item:** invoke `turnstile-drop` with that id.
    - **A code review or feedback on a diff:** invoke `turnstile-code-reviewer`.

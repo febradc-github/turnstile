@@ -59,7 +59,7 @@ through their command wrapper or conversate's routing (via the Skill tool).
 | `/turnstile:breakdown [id]` | Decomposes an epic into user stories, or an oversized story into tasks; requires approval. |
 | `/turnstile:spec [id]` | Turns an approved design into a checkable spec; requires approval. (`profile: solo`: the refine plan already covered this -- explains and points onward.) |
 | `/turnstile:sprint-plan` | Starts a new sprint; archives the finished one; recommends which ready items to pull in and proposes a goal; rolls over unfinished work. |
-| `/turnstile:quick [description]` | Fast lane: trivial work or a diagnosed bug becomes a small task in the current sprint after one approval -- no design doc, no spec. 2 points max. |
+| `/turnstile:quick [description]` | Fast lane: trivial work or a diagnosed bug becomes a small task in the current sprint after one approval -- no design doc, no spec. `quick_max_points` max (default 3). |
 | `/turnstile:drop [id] [reason]` | Cancels a ticket: status `dropped` with a recorded reason. History, not deletion. |
 | `/turnstile:work [id]` | Implements one ticket with TDD. |
 | `/turnstile:review [id]` | Independent done-ness check; commits on pass. |
@@ -112,6 +112,7 @@ surfaced warning -- bad config never breaks the pipeline:
 
     profile: full          # solo | full -- solo merges design+spec into one
                            # approved plan artifact per leaf item
+    quick_max_points: 3    # the /turnstile:quick fast-lane ceiling
 
 Switching `profile` mid-project is safe: review resolves each ticket's
 criteria per ticket (spec, then plan, then item note), so artifacts from
@@ -144,7 +145,8 @@ sprint on its own. Epics and other parents never enter a sprint; when the last
 child passes review, the parent is marked done automatically.
 
 Two pragmatic side doors keep the pipeline agile. `/turnstile:quick` lets
-trivial work (≤2 points, criteria written inline in the item note) enter the
+trivial work (up to `quick_max_points` points, default 3, criteria written
+inline in the item note) enter the
 current sprint after a single approval, marked `added_mid_sprint` so standup
 reports scope growth honestly. And a reported bug becomes tracked work via
 the debugger: related to the in-progress ticket, it's fixed within that

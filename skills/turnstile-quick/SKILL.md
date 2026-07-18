@@ -8,7 +8,7 @@ user-invocable: false
 # Quick
 
 <important>
-- The fast lane is for trivial work only: 2 points maximum, no children, no open design questions. If sizing or approach needs discussion, it is not trivial -- refuse and route to /turnstile:refine. Never "quick" bigger work in pieces to dodge the cap.
+- The fast lane is for trivial work only: no children, no open design questions, and at most quick_max_points points -- read the ceiling with `node ${CLAUDE_PLUGIN_ROOT}/scripts/config.js` (default 3; surface any config warnings once). If sizing or approach needs discussion, it is not trivial -- refuse and route to /turnstile:refine. Never "quick" bigger work in pieces to dodge the cap.
 - One approval gate replaces refine's and spec's: do not write anything until the user confirms the item (title, criteria, points) and its destination in one go.
 - Acceptance criteria are mandatory even here -- /turnstile:review needs something checkable. They live inline in the item note; quick items get no design doc and no spec file.
 - Quick items added to a running sprint are marked added_mid_sprint: true so standup can report scope growth honestly. This lane adds visibility, never invisibility.
@@ -19,8 +19,8 @@ user-invocable: false
 ## Process
 
 1. Search the vault for notes or existing tickets related to the description ($ARGUMENTS). If an open item already covers it, point there and stop.
-2. Assess triviality: estimate points. Above 2 points, multiple deliverables, or an unresolved design choice -> refuse and route to `/turnstile:refine` (quote the reason). Bug fixes handed off by `turnstile-systematic-debugger` arrive with a confirmed root cause -- include it in the description.
-3. Draft the item: clear title, one-paragraph description, 1-3 concrete acceptance criteria, points (1-2), assignee (`claude` unless told otherwise), type (`task` by default; `story` if user-facing scope). For a bug, note the root cause in the description and tag the item note `bug`.
+2. Assess triviality: estimate points. Above the quick_max_points ceiling, multiple deliverables, or an unresolved design choice -> refuse and route to `/turnstile:refine` (quote the reason and the ceiling). Bug fixes handed off by `turnstile-systematic-debugger` arrive with a confirmed root cause -- include it in the description.
+3. Draft the item: clear title, one-paragraph description, 1-3 concrete acceptance criteria, points (1 up to the ceiling), assignee (`claude` unless told otherwise), type (`task` by default; `story` if user-facing scope). For a bug, note the root cause in the description and tag the item note `bug`.
 4. Determine the destination:
    - `turnstile/sprint.yml` exists and is active -> the item joins it with `status: todo` and `added_mid_sprint: true`.
    - No active sprint -> `turnstile/backlog.yml` with `status: ready` (no further gates needed); say the next `/turnstile:sprint-plan` will pick it up.
