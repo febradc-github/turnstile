@@ -1,8 +1,8 @@
-# Cadence
+# Turnstile
 
-A gated, file-based agile workflow plugin for Claude Code. Cadence tracks work
-on a YAML board, enforces hard approval gates so nothing skips ahead of its
-own readiness, and maintains a persistent, Obsidian-linked knowledge brain
+A gated, file-based agile workflow plugin for Claude Code. Turnstile tracks
+work on a YAML board, enforces hard approval gates so nothing skips ahead of
+its own readiness, and maintains a persistent, Obsidian-linked knowledge brain
 that survives across sessions.
 
 ## Requirements

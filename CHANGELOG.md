@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.21.0 — 2026-07-18
+
+- Renamed plugin display name to **Turnstile** (`plugin.json`, `marketplace.json`, README).
+- Loop Watch dashboard visual overhaul (C-5): corner node positions with
+  `transform: translate(-50%,-50%)` replacing broken edge-midpoint `calc()` offsets;
+  responsive `min(120px,24vw)` × `min(60px,12vw)` node sizing; four `.trace` divs for
+  circuit lines; pulse keyframes rewritten to corner coordinates at 6s; JS demo cycle
+  (1.5s per node) when `state.phase` is null, gated clear on non-null phase; terminal
+  log fixed to 64px with `overflow:hidden`, demo lines with `.log-highlight` cyan spans.
+  31 tests (16 prior + 15 new).
+
 ## 0.20.0 — 2026-07-13
 
 Progressive-disclosure release: the plugin now loads in three layers —
