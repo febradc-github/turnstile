@@ -1,5 +1,5 @@
 ---
-description: Detects whether Obsidian is installed, installs it via the OS package manager if not, and scaffolds turnstile/.obsidian/ so the brain opens as a working vault.
+description: Optional convenience tooling -- the pipeline never needs Obsidian. Detects whether it is installed, installs it via the OS package manager if not (with confirmation), and scaffolds turnstile/.obsidian/ so the plain-markdown brain also opens as a vault.
 disable-model-invocation: true
 ---
 

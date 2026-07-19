@@ -2,9 +2,10 @@
 
 A gate-first workflow plugin for Claude Code. One ticket at a time, nothing
 ships without passing its gate: idea → design → spec → sprint → review → done.
-Turnstile tracks work on a YAML board, maintains a persistent Obsidian-linked
-knowledge brain across sessions, and drives autonomous goal loops when you need
-sustained iteration without manual steering.
+Turnstile tracks work on a YAML board, maintains a persistent wikilinked
+markdown knowledge brain across sessions (viewable as a graph in Obsidian,
+which is optional), and drives autonomous goal loops when you need sustained
+iteration without manual steering.
 
 ## Requirements
 
@@ -79,7 +80,7 @@ command exists).
 | `/turnstile:board` | Read-only render of the whole board. |
 | `/turnstile:systematic-debugger [bug]` | Independent root-cause debugging. Ad hoc, not gated. |
 | `/turnstile:code-reviewer [scope]` | Advisory code/diff review. Ad hoc, not gated, never commits. |
-| `/turnstile:install-obsidian` | One-time setup: installs Obsidian via the OS package manager (with confirmation) and scaffolds `turnstile/.obsidian/` as a working vault. Idempotent. |
+| `/turnstile:install-obsidian` | Optional convenience tooling -- nothing in the pipeline needs it. One-time setup: installs Obsidian via the OS package manager (with confirmation) and scaffolds `turnstile/.obsidian/` as a working vault. Idempotent. |
 | `/turnstile:obsidian-graph` | Opens `turnstile/` in Obsidian and points you at Graph View (Ctrl+G / Cmd+G). |
 | `/turnstile:brain-init` | Opt-in bulk mode: documents every source file as a linked `turnstile/code/` note after an explicit size/staleness warning. The default is lazy -- notes are written for ticket-touched files at review. Re-runnable; only adds missing notes. |
 
@@ -187,10 +188,13 @@ instead of requiring each command to be typed by hand.
 
 ## Data
 
-Turnstile reads and writes a `turnstile/` folder in your project repo. The whole
-folder is an Obsidian vault; every markdown file in it follows one shared
-note format (frontmatter + wikilinks), so items, designs, specs, decisions,
-architecture, code, and brain notes all interconnect in Graph View:
+Turnstile reads and writes a `turnstile/` folder in your project repo. It is
+plain markdown plus YAML: every note follows one shared format (frontmatter
++ `[[wikilinks]]`), so items, designs, specs, decisions, architecture, code,
+and brain notes all interconnect -- greppable, diffable, and readable in any
+editor. Nothing in the pipeline requires Obsidian: the folder happens to be
+a valid Obsidian vault, and Obsidian is the optional viewer that renders the
+link structure as a browsable graph, not a dependency.
 
     turnstile/
       config.yml                        # optional settings (see Configuration)
@@ -228,9 +232,12 @@ it. Older boards keep working: legacy flat `designs/<id>.md` / `specs/<id>.md`
 and 0.10-style slug names are read as fallbacks and migrated
 opportunistically.
 
-Run `/turnstile:install-obsidian` once to install Obsidian (if needed) and
-configure `turnstile/` as a vault, then open that folder in Obsidian to browse
-everything as a linked graph. Notes use hierarchical tags (`api/auth`) and
+Want the graph view? `/turnstile:install-obsidian` is optional convenience
+tooling: run it once to install Obsidian (if needed, with confirmation) and
+configure `turnstile/` as a vault, then open that folder in Obsidian to
+browse everything as a linked graph. Skipping it changes nothing about the
+workflow -- every gate, note, and hook works on the plain files. Notes use
+hierarchical tags (`api/auth`) and
 hub notes (`moc-<topic>.md`, Maps of Content) so the graph stays navigable as
 it grows; the brain-curator agent maintains both. `turnstile/code/` notes
 are lazy by default: a file gets (or refreshes) its note when a ticket that

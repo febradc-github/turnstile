@@ -20,8 +20,9 @@ user-invocable: false
 
 ## Vault layout
 
-`turnstile/` is the Obsidian vault. Every markdown file in it follows the
-shared note format, so everything interconnects in Graph View:
+`turnstile/` is plain markdown that doubles as an Obsidian vault -- Obsidian
+is the optional viewer, never a dependency. Every markdown file follows the
+shared note format, so everything interconnects:
 
     turnstile/
       config.yml                   # settings: profile, cadence, capture, quick_max_points

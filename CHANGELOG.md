@@ -68,6 +68,12 @@
   boards (parked ⇒ `parked_at` present, and a shallow check that the item
   note exists with a `## Resume` heading — it never parses note structure
   beyond that).
+- Obsidian decoupled in framing: the vault is plain markdown with
+  wikilinks — greppable, diffable, readable in any editor — and Obsidian
+  is the optional viewer, not a dependency. Nothing in the pipeline
+  requires it. `/turnstile:install-obsidian` stays as explicitly optional
+  convenience tooling (README Data section, command, and skill
+  descriptions reworded; no behavior change).
 
 ## 0.21.0 — 2026-07-18
 

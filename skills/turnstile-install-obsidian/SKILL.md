@@ -1,6 +1,6 @@
 ---
 name: turnstile-install-obsidian
-description: Installs Obsidian (after explicit confirmation) and scaffolds turnstile/.obsidian/ so the vault opens. Dispatched by /turnstile:install-obsidian only.
+description: Optional convenience tooling -- installs Obsidian (after explicit confirmation) and scaffolds turnstile/.obsidian/ so the plain-markdown vault opens in it. Nothing in the pipeline requires Obsidian. Dispatched by /turnstile:install-obsidian only.
 user-invocable: false
 ---
 
