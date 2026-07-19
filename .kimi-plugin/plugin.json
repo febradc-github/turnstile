@@ -1,6 +1,6 @@
 {
   "name": "turnstile",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Opinionated, gated workflow for solo development: conversate, brainstorm, refine, breakdown, spec, sprint-plan, work, and review epics, stories, and tasks on a file-based board, plus independent debugging and code review, with a persistent, Obsidian-linked knowledge brain.",
   "author": {
     "name": "Dan Christian Febra"

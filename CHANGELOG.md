@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.22.0 — 2026-07-19
+
+Solo-dev release: a team process reshaped into a lightweight loop with
+heavyweight verification. The entrance ceremony softens (solo profile, flow
+cadence, a higher quick ceiling), the exit gates stay iron (the independent
+reviewer, the board invariants, and every guard-hook rule are untouched),
+and the knowledge brain becomes a cheap side effect of finishing work
+(gate-anchored capture, lazy code notes) instead of a standing cost.
+
+Measured with `scripts/token-report.js` (30-turn reference session, 3
+tickets) against a git worktree of 0.21.0: session-emitted plugin context
+grows 42,427 -> 48,446 chars (+14.2%, ~1,500 tokens — four new commands and
+the richer capture/park rules), while default capture overhead falls
+182,163 -> 73,221 chars (−59.8%), because `capture: gates` makes 6 bounded
+curator dispatches where the old opportunistic behavior made 15. Net
+plugin-driven text under defaults: 224,590 -> 121,667 chars (−45.8%).
 
 - New per-project settings file `turnstile/config.yml`, read by the
   dependency-free `scripts/config.js` (CLI: one JSON line). Missing file

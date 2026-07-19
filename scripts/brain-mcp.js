@@ -6,8 +6,8 @@ const path = require('node:path');
 const readline = require('node:readline');
 
 // Folders the brain-curator owns and hand-edit tracking watches. The rest of
-// the vault (epics/, user-stories/, tasks/, designs/, specs/) is written by
-// gated skills and indexed read-only.
+// the vault (epics/, user-stories/, tasks/, designs/, specs/, plans/) is
+// written by gated skills and indexed read-only.
 const KNOWLEDGE_DIRS = ['brain', 'decisions', 'architecture', 'code'];
 
 function parseLinks(content) {
