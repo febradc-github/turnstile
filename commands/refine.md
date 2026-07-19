@@ -1,5 +1,5 @@
 ---
-description: Gap-closing dialogue for a raw idea. Writes a design doc that requires the user's explicit approval before the idea can move toward being spec'd. Gate 1a of the cadence workflow.
+description: Gap-closing dialogue for a raw idea. Writes a design doc that requires the user's explicit approval before the idea can move toward being spec'd. Gate 1a of the turnstile workflow.
 argument-hint: "[idea description]"
 disable-model-invocation: true
 ---

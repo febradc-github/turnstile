@@ -152,11 +152,11 @@ const VAULT_FILES = {
 };
 
 function scaffold(deps) {
-  const cadenceDir = path.join(deps.cwd, 'turnstile');
-  if (!deps.exists(cadenceDir)) {
+  const turnstileDir = path.join(deps.cwd, 'turnstile');
+  if (!deps.exists(turnstileDir)) {
     return { scaffolded: false, reason: 'no-turnstile-dir' };
   }
-  const obsidianDir = path.join(cadenceDir, '.obsidian');
+  const obsidianDir = path.join(turnstileDir, '.obsidian');
   if (deps.exists(obsidianDir)) {
     return { scaffolded: false, reason: 'already-exists' };
   }

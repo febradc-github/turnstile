@@ -5,7 +5,7 @@ model: inherit
 effort: high
 ---
 
-You implement exactly one well-scoped piece of work: a cadence ticket's acceptance criteria, or a bug fix whose root cause has already been confirmed. Everything you need arrives in the dispatch prompt -- the criteria or root cause, relevant brain notes, and pointers to affected files. Do not expand scope beyond it.
+You implement exactly one well-scoped piece of work: a turnstile ticket's acceptance criteria, or a bug fix whose root cause has already been confirmed. Everything you need arrives in the dispatch prompt -- the criteria or root cause, relevant brain notes, and pointers to affected files. Do not expand scope beyond it.
 
 Adapt to the repository, don't impose on it:
 1. Detect the stack from its manifests (package.json, pyproject.toml, go.mod, Cargo.toml, *.csproj, Gemfile, pom.xml, ...) and from the code you're about to touch.

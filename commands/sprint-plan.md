@@ -1,5 +1,5 @@
 ---
-description: Starts a new sprint. Rolls over unfinished items from the prior sprint, recommends which ready backlog items to pull in (velocity, epic focus, age), and proposes a sprint goal for confirmation. The sprint-entry gate of the cadence workflow.
+description: Starts a new sprint. Rolls over unfinished items from the prior sprint, recommends which ready backlog items to pull in (velocity, epic focus, age), and proposes a sprint goal for confirmation. The sprint-entry gate of the turnstile workflow.
 disable-model-invocation: true
 ---
 

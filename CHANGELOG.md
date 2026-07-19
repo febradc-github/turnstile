@@ -83,6 +83,12 @@ plugin-driven text under defaults: 224,590 -> 121,667 chars (−45.8%).
   boards (parked ⇒ `parked_at` present, and a shallow check that the item
   note exists with a `## Resume` heading — it never parses note structure
   beyond that).
+- Rename hygiene: every leftover "cadence" reference from the plugin's
+  old name is now "turnstile" — hook messages and reminder text, skill and
+  agent prose, JS identifiers (`cadenceDir` → `turnstileDir`), the
+  `cadence-ai` marketplace name (now `turnstile`, matching the README
+  install steps). The `cadence: sprint | flow` config setting keeps its
+  name: there it means the work rhythm, not the old plugin name.
 - Obsidian decoupled in framing: the vault is plain markdown with
   wikilinks — greppable, diffable, readable in any editor — and Obsidian
   is the optional viewer, not a dependency. Nothing in the pipeline

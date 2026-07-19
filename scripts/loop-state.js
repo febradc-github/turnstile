@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Manages persistent loop state for cadence-ai's loop runner.
+// Manages persistent loop state for turnstile's loop runner.
 //
 // State lives at: <projectRoot>/turnstile/loops/<id>/state.json
 //

@@ -241,7 +241,7 @@ test('cli: detect prints one parseable JSON line', () => {
   assert.equal(typeof parsed.alreadyInstalled, 'boolean');
 });
 
-test('cli: scaffold outside a cadence project refuses politely', () => {
+test('cli: scaffold outside a turnstile project refuses politely', () => {
   const fs = require('node:fs');
   const os = require('node:os');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'turnstile-test-'));

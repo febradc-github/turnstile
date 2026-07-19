@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PostToolUse validator for cadence board files: backlog.yml, sprint.yml (the
+// PostToolUse validator for turnstile board files: backlog.yml, sprint.yml (the
 // current sprint), sprints/sprint-N.yml (archives), and legacy root
 // sprint-N.yml. Structural checks only -- no YAML dependency. Exit 2 feeds
 // the problems back to Claude so the bad write is corrected immediately.
@@ -80,9 +80,9 @@ function scanBoardFile(filePath, kind, label) {
   return { sprintStatus, items, problems };
 }
 
-function validate(cadenceDir) {
+function validate(turnstileDir) {
   const problems = [];
-  const backlogPath = path.join(cadenceDir, 'backlog.yml');
+  const backlogPath = path.join(turnstileDir, 'backlog.yml');
   const backlogById = new Map(); // id -> item, backlog only (parents live there)
   let backlogItems = [];
   if (fs.existsSync(backlogPath)) {
@@ -95,12 +95,12 @@ function validate(cadenceDir) {
   // Sprint boards: sprint.yml (current), legacy root sprint-N.yml, and
   // sprints/ archives (which must be completed).
   const boards = [];
-  const sprintPath = path.join(cadenceDir, 'sprint.yml');
+  const sprintPath = path.join(turnstileDir, 'sprint.yml');
   if (fs.existsSync(sprintPath)) boards.push({ file: sprintPath, label: 'sprint.yml', archive: false });
-  for (const f of fs.readdirSync(cadenceDir).filter((f) => /^sprint-\d+\.yml$/.test(f)).sort()) {
-    boards.push({ file: path.join(cadenceDir, f), label: f, archive: false });
+  for (const f of fs.readdirSync(turnstileDir).filter((f) => /^sprint-\d+\.yml$/.test(f)).sort()) {
+    boards.push({ file: path.join(turnstileDir, f), label: f, archive: false });
   }
-  const archiveDir = path.join(cadenceDir, 'sprints');
+  const archiveDir = path.join(turnstileDir, 'sprints');
   if (fs.existsSync(archiveDir)) {
     for (const f of fs.readdirSync(archiveDir).filter((f) => /^sprint-\d+\.yml$/.test(f)).sort()) {
       boards.push({ file: path.join(archiveDir, f), label: `sprints/${f}`, archive: true });
@@ -138,7 +138,7 @@ function validate(cadenceDir) {
       const noteRel = item.type === 'task' ? `tasks/TK-${n}.md` : `user-stories/US-${n}.md`;
       let hasResume = false;
       try {
-        hasResume = /^##\s+Resume\b/m.test(fs.readFileSync(path.join(cadenceDir, noteRel), 'utf8'));
+        hasResume = /^##\s+Resume\b/m.test(fs.readFileSync(path.join(turnstileDir, noteRel), 'utf8'));
       } catch {
         // missing note: hasResume stays false
       }
@@ -214,16 +214,16 @@ process.stdin.on('end', () => {
   }
   // Claude Code passes file_path; kimi-code's Write/Edit tools pass path.
   const filePath = (input.tool_input && (input.tool_input.file_path || input.tool_input.path)) || '';
-  let cadenceDir = null;
+  let turnstileDir = null;
   if (/[\\/]turnstile[\\/](backlog\.yml|sprint\.yml|sprint-\d+\.yml)$/.test(filePath)) {
-    cadenceDir = path.dirname(filePath);
+    turnstileDir = path.dirname(filePath);
   } else if (/[\\/]turnstile[\\/]sprints[\\/]sprint-\d+\.yml$/.test(filePath)) {
-    cadenceDir = path.dirname(path.dirname(filePath));
+    turnstileDir = path.dirname(path.dirname(filePath));
   }
-  if (!cadenceDir) process.exit(0);
+  if (!turnstileDir) process.exit(0);
   let problems;
   try {
-    problems = validate(cadenceDir);
+    problems = validate(turnstileDir);
   } catch {
     process.exit(0); // validator error must never break the session
   }

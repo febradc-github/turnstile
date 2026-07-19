@@ -66,7 +66,7 @@ function walkMarkdown(dir, prefix = '') {
   return found;
 }
 
-// dir is the vault root (<project>/cadence). Indexes every markdown note in
+// dir is the vault root (<project>/turnstile). Indexes every markdown note in
 // the vault. Note names are basenames (Obsidian-style, unique by convention).
 function loadBrain(dir) {
   if (!fs.existsSync(dir)) return null;
@@ -343,7 +343,7 @@ function listChangedNotes(dir, args) {
 // Stray notes hijack wikilinks: Obsidian resolves an exact filename before an
 // alias, so an auto-created empty C-2.md (from clicking an unresolved-looking
 // link) captures every [[C-2]] that should resolve to the real item note.
-// Two signals: any note at the vault root (cadence never writes one), and any
+// Two signals: any note at the vault root (turnstile never writes one), and any
 // note whose filename equals another note's alias.
 function listStrayNotes(dir) {
   const notes = loadBrain(dir);

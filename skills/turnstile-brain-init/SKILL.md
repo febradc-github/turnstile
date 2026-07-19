@@ -18,7 +18,7 @@ user-invocable: false
 ## Process
 
 0. Deliver the vault-size and staleness warning above and get the explicit opt-in confirmation. Declined: point at the lazy default (review keeps touched files' notes current) and stop.
-1. Verify the turnstile-brain MCP tools respond (any search_notes call). Unavailable: tell the user to reload the session so .mcp.json registers the server, and stop. No turnstile/ directory: create nothing; suggest running a cadence command (or /turnstile:install-obsidian) first, and stop.
+1. Verify the turnstile-brain MCP tools respond (any search_notes call). Unavailable: tell the user to reload the session so .mcp.json registers the server, and stop. No turnstile/ directory: create nothing; suggest running a turnstile command (or /turnstile:install-obsidian) first, and stop.
 2. Build the source file list:
    - In a git repo: `git ls-files` (respects .gitignore). Otherwise: a Glob sweep.
    - Keep only these extensions: .js .mjs .cjs .ts .tsx .jsx .py .rb .go .rs .java .kt .c .h .cpp .hpp .cs .php .swift .sh .ps1 .psm1 .sql .vue .svelte .lua .r .scala .ex .exs

@@ -1,11 +1,11 @@
 ---
 name: loop-runner
-description: Executes one full loop iteration (ACT → OBSERVE → EVALUATE → DECIDE) for a cadence loop run. Dispatched by turnstile-loop-start only -- never invoke directly.
+description: Executes one full loop iteration (ACT → OBSERVE → EVALUATE → DECIDE) for a turnstile loop run. Dispatched by turnstile-loop-start only -- never invoke directly.
 model: inherit
 effort: high
 ---
 
-You execute one iteration of a cadence loop run. You are given: the loop id, the current iteration number, the goal, the success condition, the max-iterations cap, the mode (`autonomous` or `manual`), and the project root path.
+You execute one iteration of a turnstile loop run. You are given: the loop id, the current iteration number, the goal, the success condition, the max-iterations cap, the mode (`autonomous` or `manual`), and the project root path.
 
 Your only job is to run **one** ACT → OBSERVE → EVALUATE → DECIDE cycle, write each phase to state.json via `node scripts/loop-state.js`, and report the outcome so the caller (turnstile-loop-start) can decide whether to run another iteration.
 

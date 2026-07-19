@@ -1,6 +1,6 @@
 ---
 name: turnstile-brain
-description: Vault layout, the shared note format, and the check-the-brain-first mandate. Auto-loads whenever any cadence skill starts new work or /turnstile:review is about to commit.
+description: Vault layout, the shared note format, and the check-the-brain-first mandate. Auto-loads whenever any turnstile skill starts new work or /turnstile:review is about to commit.
 user-invocable: false
 ---
 
@@ -11,7 +11,7 @@ user-invocable: false
 - Before writing or restructuring ANY vault note, Read references/note-format.md from this skill's base directory -- it holds the shared frontmatter format, per-kind rules, stray-note handling, and legacy-path migration. Do not write a note from memory of the format.
 - Only the brain-curator agent writes or edits files in turnstile/brain/, turnstile/decisions/, turnstile/architecture/, and turnstile/code/. One exception: /turnstile:brain-init deletes stale code notes (their source file no longer exists) after a named-list user confirmation. Item notes, designs, and specs are written by their gated skills (refine, breakdown, spec). No other writes.
 - Status lives only in the YAML board (backlog.yml, sprint.yml, archived sprints). Notes never carry a status field -- a second copy would drift.
-- Obsidian resolves a [[wikilink]] by exact filename only. Aliases feed autocomplete and the quick switcher but never resolve a typed link. So: every [[wikilink]] written to any cadence note must name an existing file exactly (verify with read_note or search_notes first), and never write a board id as a link -- [[C-2]] does not resolve; the item note is [[US-2]] (or [[EP-2]]/[[TK-2]]). Write C-2 as plain text or link the typed name. An unresolved link is a click-trap that mints a stray note.
+- Obsidian resolves a [[wikilink]] by exact filename only. Aliases feed autocomplete and the quick switcher but never resolve a typed link. So: every [[wikilink]] written to any turnstile note must name an existing file exactly (verify with read_note or search_notes first), and never write a board id as a link -- [[C-2]] does not resolve; the item note is [[US-2]] (or [[EP-2]]/[[TK-2]]). Write C-2 as plain text or link the typed name. An unresolved link is a click-trap that mints a stray note.
 - When a set of mutually-linked notes is created together (item note + design), finish all of them in the same pass and confirm nothing is left dangling (list_unresolved_links).
 - If the every-turn reminder or list_stray_notes reports stray notes (vault-root files, duplicate basenames, or files named exactly like another note's alias), clean them up before trusting any wikilink. Delete empty strays after telling the user; fold a non-empty stray's content into the real note first.
 - If the every-turn reminder or list_changed_notes reports hand-edited knowledge notes, surface them before relying on their content -- the user's edits in Obsidian are ground truth.
@@ -25,7 +25,7 @@ is the optional viewer, never a dependency. Every markdown file follows the
 shared note format, so everything interconnects:
 
     turnstile/
-      config.yml                   # settings: profile, cadence, capture, quick_max_points
+      config.yml                   # settings: profile, turnstile, capture, quick_max_points
       backlog.yml                  # unplanned work (idea/ready/dropped)
       sprint.yml                   # the current sprint -- always this name
       sprints/sprint-<N>.yml       # completed sprints, immutable archive

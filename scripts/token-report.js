@@ -84,7 +84,7 @@ try {
 }
 
 // --- perTurn: the UserPromptSubmit reminder ---
-// Run remind.js against a bare cadence dir (no alerts) the way the hook does,
+// Run remind.js against a bare turnstile dir (no alerts) the way the hook does,
 // feeding it a fixed session id twice to capture first-turn and repeat sizes.
 const { execFileSync } = require('node:child_process');
 const os = require('node:os');
@@ -178,7 +178,7 @@ if (asJson) {
   console.log(JSON.stringify(report, null, 2));
 } else {
   const t = report.totals;
-  console.log(`cadence token report (${TURNS}-turn reference session) -- ${root}`);
+  console.log(`turnstile token report (${TURNS}-turn reference session) -- ${root}`);
   console.log(`  fixed (descriptions + MCP tool list): ${report.fixed.total} chars (~${tokens(report.fixed.total)} tokens)`);
   console.log(`  reminder: first turn ${firstTurn}, repeats ${repeatTurn} chars; emitted over session ${perTurnEmitted} (~${tokens(perTurnEmitted)} tokens)`);
   console.log(`  invoked bodies (reference workflow): ${invokedChars} chars (~${tokens(invokedChars)} tokens)`);

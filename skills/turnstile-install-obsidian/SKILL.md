@@ -14,7 +14,7 @@ user-invocable: false
 
 ## Purpose
 
-One-time setup that takes the user from "cadence has a brain folder" to "that folder is a working Obsidian vault": install Obsidian if needed (with confirmation), then scaffold vault config so `[[wikilinked]]` brain notes open with graph view, backlinks, tags, and search working.
+One-time setup that takes the user from "turnstile has a brain folder" to "that folder is a working Obsidian vault": install Obsidian if needed (with confirmation), then scaffold vault config so `[[wikilinked]]` brain notes open with graph view, backlinks, tags, and search working.
 
 ## Script
 
@@ -34,7 +34,7 @@ All OS work goes through the plugin script `scripts/install-obsidian.js`, locate
 5. Run `scaffold` regardless of the outcome of steps 2–4 — it only writes files and doesn't require Obsidian to be installed or running. Report the result:
    - `created` — vault config created at `turnstile/.obsidian/`.
    - `already-exists` — vault already configured; untouched.
-   - `no-turnstile-dir` — there's no `turnstile/` here yet: suggest running `/turnstile:refine` (or another cadence command) first so there's a brain worth opening; this command never creates `turnstile/` itself.
+   - `no-turnstile-dir` — there's no `turnstile/` here yet: suggest running `/turnstile:refine` (or another turnstile command) first so there's a brain worth opening; this command never creates `turnstile/` itself.
 6. If Obsidian is installed and the vault is configured, tell the user to open the project's `turnstile/` folder in Obsidian ("Open folder as vault") to browse the brain graph.
 
 ## Error handling

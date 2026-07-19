@@ -8,7 +8,7 @@ user-invocable: false
 # Brainstorm
 
 <important>
-- Never write to turnstile/backlog.yml, turnstile/designs/, or any other cadence data file from this skill -- brainstorming has no side effects. Only `turnstile-refine` writes the design doc and backlog entry.
+- Never write to turnstile/backlog.yml, turnstile/designs/, or any other turnstile data file from this skill -- brainstorming has no side effects. Only `turnstile-refine` writes the design doc and backlog entry.
 - Do not ask for acceptance criteria, a points estimate, or an assignee -- those belong to `turnstile-refine`. Keep questions open-ended and exploratory.
 - Search the vault (brain, decisions, architecture, item notes) for related notes before starting the dialogue, and surface what you find.
 - The pitch panel is gated: dispatch pitch-agent only for epic-scale ideas (multiple independent deliverables, or a clear >8-point feel) or when the user asks for more perspectives. Trivial ideas get no panel -- it would be token theater.

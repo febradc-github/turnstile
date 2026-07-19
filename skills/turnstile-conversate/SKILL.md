@@ -1,6 +1,6 @@
 ---
 name: turnstile-conversate
-description: Entry point for natural-language cadence requests -- classifies the message against board state, then answers directly or invokes the one matching skill (brainstorm, quick, refine, spec, sprint-plan, work, review, breakdown, drop, systematic-debugger, code-reviewer).
+description: Entry point for natural-language turnstile requests -- classifies the message against board state, then answers directly or invokes the one matching skill (brainstorm, quick, refine, spec, sprint-plan, work, review, breakdown, drop, systematic-debugger, code-reviewer).
 argument-hint: "[what you want]"
 user-invocable: false
 ---

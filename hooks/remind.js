@@ -8,8 +8,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const MESSAGE =
-  "This project uses the cadence workflow; never skip a gate. Only /turnstile:review marks an item done; search turnstile/brain/ before starting new work. Never read env files (.env, .env.*, *.env, .envrc) -- no tool, no shell command, no exceptions; ask the user for config values. If this message concerns project work (an idea, a ticket, a bug, a review request, or board status), invoke the turnstile-conversate skill to classify and route it -- unless you just asked the user a follow-up question inside a gated cadence skill (refine/breakdown/spec/sprint-plan/next/quick/drop/park/pickup/work/review). Answer messages unrelated to cadence work normally, without routing.\n";
-const ANCHOR = 'cadence active: route project work via the turnstile-conversate skill; gates and the no-env-files rule apply.\n';
+  "This project uses the turnstile workflow; never skip a gate. Only /turnstile:review marks an item done; search turnstile/brain/ before starting new work. Never read env files (.env, .env.*, *.env, .envrc) -- no tool, no shell command, no exceptions; ask the user for config values. If this message concerns project work (an idea, a ticket, a bug, a review request, or board status), invoke the turnstile-conversate skill to classify and route it -- unless you just asked the user a follow-up question inside a gated turnstile skill (refine/breakdown/spec/sprint-plan/next/quick/drop/park/pickup/work/review). Answer messages unrelated to turnstile work normally, without routing.\n";
+const ANCHOR = 'turnstile active: route project work via the turnstile-conversate skill; gates and the no-env-files rule apply.\n';
 const REFRESH_EVERY = 30; // full message on prompts 1, 31, 61, ...
 const MAX_TRACKED_SESSIONS = 20;
 
@@ -41,13 +41,13 @@ function promptIndex(statePath, sessionId) {
   return index;
 }
 
-function alertLines(cadenceDir) {
+function alertLines(turnstileDir) {
   let handEditLine = '';
   let strayLine = '';
   let unresolvedLine = '';
   try {
     const { vaultAlerts } = require(path.join(__dirname, '..', 'scripts', 'brain-mcp.js'));
-    const alerts = vaultAlerts(cadenceDir);
+    const alerts = vaultAlerts(turnstileDir);
     if (!alerts) return '';
     if (alerts.changed.length > 0) {
       const names = alerts.changed.slice(0, 5).map((c) => c.name).join(', ');
@@ -87,8 +87,8 @@ process.stdin.on('end', () => {
   } catch {
     // no usable stdin: emit the full message below
   }
-  const cadenceDir = path.join(projectDir, 'turnstile');
-  if (!fs.existsSync(cadenceDir)) {
+  const turnstileDir = path.join(projectDir, 'turnstile');
+  if (!fs.existsSync(turnstileDir)) {
     process.exit(0);
   }
   // kimi-code runs plugin hooks (and the brain MCP server) with the plugin
@@ -104,7 +104,7 @@ process.stdin.on('end', () => {
       // a stale or missing hint only degrades the brain MCP, never the hook
     }
   }
-  const index = sessionId === null ? 0 : promptIndex(path.join(cadenceDir, '.remind-state.json'), sessionId);
+  const index = sessionId === null ? 0 : promptIndex(path.join(turnstileDir, '.remind-state.json'), sessionId);
   const preamble = index % REFRESH_EVERY === 0 ? MESSAGE : ANCHOR;
-  process.stdout.write(preamble + alertLines(cadenceDir));
+  process.stdout.write(preamble + alertLines(turnstileDir));
 });

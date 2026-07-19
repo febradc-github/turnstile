@@ -37,10 +37,10 @@ Then stop.
 
 ### 3. Determine the plugin root
 
-The plugin root is the directory that contains this SKILL.md file's parent `skills/` directory — i.e. the `cadence-ai` plugin root.  Resolve it from `__dirname` of the SKILL.md when running in the Claude Code harness, or use the known absolute path:
+The plugin root is the directory that contains this SKILL.md file's parent `skills/` directory — i.e. the `turnstile` plugin root.  Resolve it from `__dirname` of the SKILL.md when running in the Claude Code harness, or use the known absolute path:
 
 ```
-<pluginRoot> = the directory containing cadence-ai's package or plugin root
+<pluginRoot> = the directory containing turnstile's package or plugin root
 ```
 
 In practice: the loop-watch script lives at `<pluginRoot>/scripts/loop-watch.js`.

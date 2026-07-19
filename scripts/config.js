@@ -37,12 +37,12 @@ const ENUMS = {
 };
 
 // Returns { config, warnings }. config always has every key of DEFAULTS.
-function loadConfig(cadenceDir) {
+function loadConfig(turnstileDir) {
   const config = { ...DEFAULTS };
   const warnings = [];
   let raw;
   try {
-    raw = fs.readFileSync(path.join(cadenceDir, 'config.yml'), 'utf8');
+    raw = fs.readFileSync(path.join(turnstileDir, 'config.yml'), 'utf8');
   } catch {
     return { config, warnings }; // no config file: defaults, silently
   }
@@ -78,8 +78,8 @@ function loadConfig(cadenceDir) {
 
 module.exports = { loadConfig, DEFAULTS };
 
-// CLI for skills: node scripts/config.js [cadenceDir] prints one JSON line
-// {config, warnings}. cadenceDir defaults to ./turnstile under the cwd.
+// CLI for skills: node scripts/config.js [turnstileDir] prints one JSON line
+// {config, warnings}. turnstileDir defaults to ./turnstile under the cwd.
 if (require.main === module) {
   const dir = process.argv[2] || path.join(process.cwd(), 'turnstile');
   process.stdout.write(JSON.stringify(loadConfig(dir)) + '\n');

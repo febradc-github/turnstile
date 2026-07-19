@@ -84,7 +84,7 @@ territory instead.
 
 ## Legacy paths
 
-Earlier cadence versions used flat `designs/<id>.md` / `specs/<id>.md`
+Earlier turnstile versions used flat `designs/<id>.md` / `specs/<id>.md`
 (pre-0.10) and slug names like `C-2-checkout-form.md` /
 `C-2-checkout-form-design.md` (0.10.x). Read them where the current name is
 missing; whenever a skill rewrites one anyway, move it to the current name,

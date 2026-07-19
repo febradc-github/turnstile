@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Loop Watch DevOps Console for cadence-ai.
+// Loop Watch DevOps Console for turnstile.
 //
 // Usage: node scripts/loop-watch.js <id> [projectRoot]
 //

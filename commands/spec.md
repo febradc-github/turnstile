@@ -1,5 +1,5 @@
 ---
-description: Turns an approved design doc into a concrete, checkable spec file. Requires the user's explicit approval before the item can be marked ready. Gate 1b of the cadence workflow.
+description: Turns an approved design doc into a concrete, checkable spec file. Requires the user's explicit approval before the item can be marked ready. Gate 1b of the turnstile workflow.
 argument-hint: "[id]"
 disable-model-invocation: true
 ---

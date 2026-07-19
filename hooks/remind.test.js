@@ -7,7 +7,7 @@ const os = require('node:os');
 
 const REMIND_PATH = path.join(__dirname, 'remind.js');
 const EXPECTED_MESSAGE =
-  "This project uses the cadence workflow; never skip a gate. Only /turnstile:review marks an item done; search turnstile/brain/ before starting new work. Never read env files (.env, .env.*, *.env, .envrc) -- no tool, no shell command, no exceptions; ask the user for config values. If this message concerns project work (an idea, a ticket, a bug, a review request, or board status), invoke the turnstile-conversate skill to classify and route it -- unless you just asked the user a follow-up question inside a gated cadence skill (refine/breakdown/spec/sprint-plan/next/quick/drop/park/pickup/work/review). Answer messages unrelated to cadence work normally, without routing.\n";
+  "This project uses the turnstile workflow; never skip a gate. Only /turnstile:review marks an item done; search turnstile/brain/ before starting new work. Never read env files (.env, .env.*, *.env, .envrc) -- no tool, no shell command, no exceptions; ask the user for config values. If this message concerns project work (an idea, a ticket, a bug, a review request, or board status), invoke the turnstile-conversate skill to classify and route it -- unless you just asked the user a follow-up question inside a gated turnstile skill (refine/breakdown/spec/sprint-plan/next/quick/drop/park/pickup/work/review). Answer messages unrelated to turnstile work normally, without routing.\n";
 
 test('remind.js prints nothing when no turnstile/ directory exists', () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'turnstile-remind-test-'));

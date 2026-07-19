@@ -1,5 +1,5 @@
 ---
-description: Dispatches the independent turnstile-reviewer agent to verify a ticket is actually done. On pass, commits the change. Gate 2 of the cadence workflow -- the implementer never self-certifies.
+description: Dispatches the independent turnstile-reviewer agent to verify a ticket is actually done. On pass, commits the change. Gate 2 of the turnstile workflow -- the implementer never self-certifies.
 argument-hint: "[id]"
 disable-model-invocation: true
 ---

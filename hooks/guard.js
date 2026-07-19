@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// PreToolUse guard: blocks git commits that violate the cadence commit
+// PreToolUse guard: blocks git commits that violate the turnstile commit
 // convention (no Anthropic/Claude attribution, no --no-verify), and blocks
 // ANY tool access to env files (.env, .env.*, *.env, .envrc) -- they hold
 // secrets and are never read, written, searched, or referenced in commands.
 // Exit 2 blocks the tool call and feeds stderr back to Claude.
 
 const ENV_MSG =
-  'cadence forbids touching env files (.env, .env.*, *.env, .envrc): they hold secrets and are never read, written, searched, or referenced in commands. No exceptions -- ask the user for any config value you need.';
+  'turnstile forbids touching env files (.env, .env.*, *.env, .envrc): they hold secrets and are never read, written, searched, or referenced in commands. No exceptions -- ask the user for any config value you need.';
 
 const FILE_TOOLS = new Set(['Read', 'Edit', 'Write', 'NotebookEdit', 'Grep', 'Glob']);
 
@@ -51,10 +51,10 @@ process.stdin.on('end', () => {
     if (commandTouchesEnv(command)) violations.push(ENV_MSG);
     if (/\bgit\b/.test(command) && /\bcommit\b/.test(command)) {
       if (/--no-verify\b/.test(command)) {
-        violations.push('cadence forbids --no-verify on commits; fix the hook failure instead.');
+        violations.push('turnstile forbids --no-verify on commits; fix the hook failure instead.');
       }
       if (/co-authored-by:.*\b(claude|anthropic)\b/i.test(command) || /noreply@anthropic\.com/i.test(command)) {
-        violations.push('cadence forbids Anthropic/Claude attribution lines in commit messages; remove the Co-Authored-By trailer.');
+        violations.push('turnstile forbids Anthropic/Claude attribution lines in commit messages; remove the Co-Authored-By trailer.');
       }
     }
   }

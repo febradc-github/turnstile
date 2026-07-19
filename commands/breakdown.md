@@ -1,5 +1,5 @@
 ---
-description: Decomposes an epic into user stories, or an oversized story into tasks. Proposes a breakdown for explicit approval, then writes child design docs and backlog entries. Gate 1a-b of the cadence workflow.
+description: Decomposes an epic into user stories, or an oversized story into tasks. Proposes a breakdown for explicit approval, then writes child design docs and backlog entries. Gate 1a-b of the turnstile workflow.
 argument-hint: "[id]"
 disable-model-invocation: true
 ---
