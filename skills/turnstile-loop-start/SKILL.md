@@ -21,7 +21,7 @@ user-invocable: false
 From `$ARGUMENTS`, extract:
 - `goal` (required) -- what the loop is trying to accomplish.
 - `success` (required) -- the observable condition that marks the loop done.
-- `max-iterations` (optional, default 10) -- hard cap; must be a positive integer.
+- `max-iterations` (optional, default 3) -- hard cap; must be a positive integer.
 
 If `goal` or `success` is missing, tell the user the required arguments and stop.
 

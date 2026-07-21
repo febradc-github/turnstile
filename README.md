@@ -96,7 +96,6 @@ brain-vault integration can annotate with structured notes.
 |---|---|
 | `/turnstile:loop-start goal="..." success="..." [max-iterations=N]` | Initialises a loop run, asks whether to run autonomously or with manual confirmation between iterations, then drives the ACT/OBSERVE/EVALUATE/DECIDE cycle until the success condition is met, the iteration cap is reached, or an unrecoverable error occurs. |
 | `/turnstile:loop-status <id>` | Renders the current phase, status, and full iteration history from `turnstile/loops/<id>/state.json` in the terminal. |
-| `/turnstile:loop-watch <id>` | Starts a local HTTP server and opens a browser dashboard that polls `/state` every second and renders the circuit animation live — four nodes at PLAN/RUN/CHECK/REPORT corners, a traveling cyan pulse, and a scrolling terminal log of iteration outputs. |
 
 Loop state is stored under `turnstile/loops/<id>/` and is never touched by the
 board hooks, so loops run independently of sprint work. The `turnstile-work`
